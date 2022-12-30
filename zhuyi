@@ -1,0 +1,45 @@
+
+vi /usr/local/php/etc/php.ini
+php.ini 去掉　proc_open,proc_get_status,exec函数
+
+nohup ./shell.sh &
+
+
+mysqldump -uroot -p www_zf_com >www_zf_com.sql
+
+scp命令复制本地数据到服务器
+scp /home/www_zf_com.sql root@103.85.23.159:/home/
+scp -r /home/wwwroot/www.paofen.com/ root@103.85.23.159:/home/wwwroot/
+
+use www_pf_com;
+source /home/www_pf_com.sql;
+
+git config core.filemode false
+
+UPDATE  cm_admin SET password = 'd31f4b567830340af5ec399e4e4da8d6' WHERE username ='admin';
+
+ssh-keygen -o 
+
+vi /usr/local/mysql/my.cnf
+去掉严格模式
+
+//每天凌晨定时清除相关数据表数据
+#!/bin/bash
+*/1 * * * * curl http://127.0.0.1/index/cron/notify
+*/1 * * * * cd /home/wwwroot/www.zf.com && ./shouhu.sh
+0 0 */3 * *  cd  /home/wwwroot/www.zf.com && php think  cleardata
+记得重启crontab服务
+
+//禁止访问根目录下thinkphp|public|test|data|test3|vendor文件夹下的php|php5后缀的文件
+    location ~* ^/(thinkphp|public|test|data|test3|vendor)/.*.(php|php5)$ {
+      deny all;
+ }
+ //禁止访问data目录
+ niginx 配置：  location ^~ /data/ { deny all; }
+ 或者
+ 伪静态的配置： location ~* (data)/{
+   return 403;
+ }
+
+
+

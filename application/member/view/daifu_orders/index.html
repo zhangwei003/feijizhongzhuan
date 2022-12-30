@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>代付订单 - 服务商管理 - 码商管理后台</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    {include file="/common/link"}
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <fieldset id="searchFieldset_currentTableRenderId" class="table-search-fieldset layui-hide1">
+            <legend>高级搜索</legend>
+            <div style="margin: 10px 10px 10px 10px">
+                <div class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">平台订单</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="trade_no" autocomplete="off" placeholder="请输入平台订单" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">商户单号</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="out_trade_no" autocomplete="off" placeholder="请输入商户单号" class="layui-input">
+                            </div>
+                        </div>
+                        {if condition="$status neq 1"}
+                        <div class="layui-inline">
+                            <label class="layui-form-label">订单状态</label>
+                            <div class="layui-input-inline">
+                                <select class="layui-select" name="status">
+                                    <option value="">全部</option>
+                                    <option value="1">待处理</option>
+                                    <option value="3">处理中</option>
+                                    <option value="2">处理成功</option>
+                                    <option value="0">处理失败</option>
+                                </select>
+                            </div>
+                        </div>
+                        {/if}
+
+                        <div class="layui-inline">
+                            <label class="layui-form-label">下单时间</label>
+                            <div class="layui-inline" id="test-range">
+                                <div class="layui-input-inline">
+                                    <input type="text" id="startDate" name="startDate" class="layui-input" placeholder="开始日期">
+                                </div>
+                                <div class="layui-form-mid">-</div>
+                                <div class="layui-input-inline">
+                                    <input type="text" id="endDate" name="endDate" class="layui-input" placeholder="结束日期">
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="layui-inline">
+                            <button type="submit" class="layui-btn  layui-btn-sm layui-btn-normal" data-type="tableSearch" data-table="currentTableRenderId" lay-submit lay-filter="currentTableRenderId_filter"> 搜 索</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+                <button class="layui-btn  layui-btn-sm layuimini-btn-primary" lay-event="refresh"> 刷新订单 </button>
+
+            </div>
+        </script>
+
+        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+
+        <script type="text/html" id="currentTableBar">
+            {{#  if(d.status == '1'){ }}
+            <a class="layui-btn layui-btn-xs layui-btn-warm data-count-edit" lay-event="matching">处理订单</a>
+            {{#  } else if(d.status == '3'){ }}
+            <a class="layui-btn layui-btn-xs" lay-event="finishDf">完成代付</a>
+            <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="error_finishDf">代付失败</a>
+            <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="discard_df">弃单</a>
+            {{#  } else if(d.status == '0' || d.status == '2'){ }}
+            <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="select_reson">查看备注</a>
+            {{#  } }}
+        </script>
+
+        <script type="text/html" id="orderstatus">
+            {{#  if(d.status == '1'){ }}
+            <button class="layui-btn layui-btn-normal layui-btn-xs">待处理</button>
+            {{#  } else if(d.status == '0'){ }}
+            <button class="layui-btn  layui-btn-disabled layui-btn-xs">处理失败</button>
+            {{#  } else if(d.status == '3'){ }}
+            <button class="layui-btn layui-btn-warm layui-btn-xs">处理中</button>
+            {{#  } else if(d.status == '2'){ }}
+            <button class="layui-btn layui-btn-xs">处理完成</button>
+            {{#  } }}
+        </script>
+
+    </div>
+</div>
+</body>
+</html>
+{include file="common/js"}
+<script type="text/javascript" src="__MS__/js/clipboard.min.js"></script>
+<script src="https://cdn.bootcss.com/jsencrypt/3.0.0-beta.1/jsencrypt.js"></script>
+<!--<script type="text/javascript" src="/public/static/member/js/base64.js"></script>-->
+<script>
+    var order_status = '{$status}';
+    layui.use(['form', 'table','laydate'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            laydate = layui.laydate,
+            util = layui.util,
+            table = layui.table;
+        var date=new Date();
+        // date.setHours('00');date.setMinutes('00');date.setSeconds('00');
+        laydate.render({
+            elem: '#startDate'
+            ,type: 'datetime'
+
+        });
+        // var dates=new Date();
+        // dates.setHours('23');dates.setMinutes('59');dates.setSeconds('59');
+        laydate.render({
+            elem: '#endDate'
+            ,type: 'datetime'
+        });
+
+
+        form.on('submit(currentTableRenderId_filter)', function (data) {
+            var field = data.field;
+            //监听搜索分页为1
+            //执行重载
+            table.reload('currentTableId', {
+                where: {search:_r(JSON.stringify(field))},
+                page: {
+                    curr: 1,
+                }
+            });
+        });
+
+      window.copy_txt =  function(id) {
+            var clipboard = new ClipboardJS('.'+id);
+            clipboard.on('success', function(e) {
+                layer.msg("复制成功",{icon:1,time:1500})
+                e.clearSelection();
+            });
+            clipboard.on('error', function(e) {
+                layer.msg("复制失败，请手动复制",1500)
+            });
+        }
+
+        table.render({
+            elem: '#currentTableId',
+            url: "{:url('getDaifuOrderList')}?Orderstatus="+order_status,
+            toolbar: '#toolbarDemo',
+            cols: [[
+                {field: 'out_trade_no',align: "center",  title: '商户订单号'},
+                {field: 'bank_name',align: "center", title: '银行名字'},
+                {field: 'bank_number',align: "center", title: '收款账号',
+                    templet: function (d) {
+                    role = '';
+                    if (d.status == 3) {
+                        role = d.bank_number + '&nbsp;&nbsp;&nbsp;&nbsp;' +
+                            '<a class="layui-btn layui-btn-normal layui-btn-xs copy1" href="javascript:void(0);" data-clipboard-text="'+d.bank_number+'" ' +
+                            'onclick="copy_txt(\'copy1\')">\n' +
+                            '复制' +
+                            '</a>'}
+                        else{role = '******' }return role;}},
+                {field: 'bank_owner',align: "center", width:100, title: '姓名'},
+                {field: 'amount',align: "center", width:120,title: '转账金额'},
+                {field: 'create_time',align: "center",  title: '下单时间'},
+                {field: 'finish_time',align: "center", title: '处理时间', templet: function (d) {if(d.finish_time == '' ){return '----';}else{
+                   return util.toDateString(d.finish_time * 1000);
+                    }}},
+                {field: 'status', width:150, title: '订单状态',templet: "#orderstatus", align: "center"},
+                {title: '操作',width:250, toolbar: '#currentTableBar', align: "center"}
+            ]],
+            limits: [10, 15, 20, 25, 50, 100],
+            limit: 15,
+            page: true,
+        });
+
+        // 监听搜索操作
+        form.on('submit(data-search-btn)', function (data) {
+            var result = JSON.stringify(data.field);
+            layer.alert(result, {
+                title: '最终的搜索信息'
+            });
+
+            //执行搜索重载
+            table.reload('currentTableId', {
+                page: {
+                    curr: 1
+                }
+                , where: {
+                    searchParams: result
+                }
+            }, 'data');
+
+            return false;
+        });
+
+        /**
+         * toolbar监听事件
+         */
+        table.on('toolbar(currentTableFilter)', function (obj) {
+            if (obj.event === 'refresh') {  // 监听添加操作
+                table.reload('currentTableId', {
+                }, 'data');
+            } else if (obj.event === 'delete') {  // 监听删除操作
+                var checkStatus = table.checkStatus('currentTableId')
+                    , data = checkStatus.data;
+                layer.alert(JSON.stringify(data));
+            }
+        });
+
+        //监听表格复选框选择
+        table.on('checkbox(currentTableFilter)', function (obj) {
+            console.log(obj)
+        });
+
+        table.on('tool(currentTableFilter)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'matching') {
+                $.post("{:url('matching')}",{id:data.id},function (res){
+                    if (res.code == 1){
+                        layer.msg(res.msg,{icon:1,time: 1000},function (){
+                            table.reload('currentTableId', {
+                            }, 'data');
+                        })
+                    }else{
+                        layer.msg(res.msg,{icon:2,time: 1500})
+                    }
+                });
+            } else if (obj.event === 'discard_df') {
+                layer.confirm('确定丢弃这一单吗？', {
+                    btn: ['确定', '取消'] //可以无限个按钮
+                }, function(index, layero){
+                    //按钮【按钮一】的回调
+                    $.post("{:url('discard_df')}",{id:data.id},function (res){
+                        if (res.code == 1){
+                            layer.msg(res.msg,{icon:1,time: 1000},function (){
+                                layer.close(index)
+                                table.reload('currentTableId', {
+                                }, 'data');
+                            })
+                        }else{
+                            layer.msg(res.msg,{icon:2,time: 1500},function (){
+                                layer.close(index)
+                            })
+                        }
+                    })
+                }, function(index){
+                    //按钮【按钮二】的回调
+                    layer.close(index);
+                });
+            }else if(obj.event === 'finishDf'){
+                layer.open({
+                    title: '备注',
+                    area:['280','250'],
+                    content:'<div>' +
+                        '<div className="layui-form-item">'+
+                        '<input class="layui-input" type="text" id="remark" required    lay-verify="required" placeholder="请输入备注信息" autoComplete="off" className="layui-input">'+
+                        '</div></div>',
+                    yes:function(index){
+                        $.post("{:url('sendDfResult')}",{id:data.id,remark:$('#remark').val(),status:2},function (res){
+                            if (res.code == 1){
+                                layer.msg(res.msg,{icon:1,time: 1000},function (){
+                                    layer.close(index)
+                                    table.reload('currentTableId', {
+                                    }, 'data');
+                                })
+                            }else{
+                                layer.msg(res.msg,{icon:2,time: 1500},function (){
+                                    layer.close(index)
+                                })
+                            }
+                        })
+                    }
+                })
+            }else if(obj.event === 'error_finishDf'){
+
+                layer.open({
+                    title: '订单失败备注',
+                    area:['280','250'],
+                    content:'<div>' +
+                        '<div className="layui-form">' +
+                        '<div class="layui-input-block" style="width: 100%;margin-left: 0" className="layui-input-block">'+
+                        '<select name="remark" style="width: 100%" id="reson"  class="layui-select" className="layui-select" >\n' +
+                        '        <option >请选择失败理由</option>\n' +
+                        '      </select>'+
+                        '</div>' +
+                        '</div>' +
+                        '</div>',
+                    yes:function(index){
+                        $.post("{:url('sendDfResult')}",{id:data.id,remark:$('#reson').val(),error_reason:$('#reson').val(),status:0},function (res){
+                            if (res.code == 1){
+                                layer.msg(res.msg,{icon:1,time: 1000},function (){
+                                    layer.close(index)
+                                    table.reload('currentTableId', {
+                                    }, 'data');
+                                })
+                            }else{
+                                layer.msg(res.msg,{icon:2,time: 1500},function (){
+                                    layer.close(index)
+                                })
+                            }
+                        })
+                    }
+                })
+                $.ajax({
+                    url: "getErrorReson",
+                    dataType: 'json',
+                    type: 'post',
+                    success: function (data) {
+                        console.log(data);//下面会提到这个data是什么值
+                        //使用循环遍历，给下拉列表赋值
+                        $.each(data.data, function (index, value) {
+                            // console.log(value);
+                            $('#reson').append(new Option(value,value));// 下拉菜单里添加元素
+                        });
+                        layui.form.render("select");//重新渲染 固定写法
+                    }
+                })
+            }else if(obj.event === 'select_reson'){
+                if (data.status == 0){
+                    layer.confirm(data.error_reason, {
+                        title: '订单备注',
+                        btn: ['我知道了'] //按钮
+                    });
+                }else{
+                    layer.confirm(data.remark, {
+                        title: '订单备注',
+                        btn: ['我知道了'] //按钮
+                    });
+                }
+
+            }
+        });
+
+        function _r(d) {
+            var encrypt = new JSEncrypt();
+            var  pubkey = '-----BEGIN PUBLIC KEY-----{$publicKeyString}-----END PUBLIC KEY-----'
+            encrypt.setPublicKey(pubkey);
+            var str = d;
+            return encrypt.encrypt(str);
+        }
+    });
+</script>

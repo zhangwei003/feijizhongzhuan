@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>后台管理 - 码商列表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="__ADMIN__/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="__ADMIN__/style/admin.css" media="all">
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <!--头部-->
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">用户名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="username" placeholder="请输入用户名" value="{$Request.get.username}"
+                               autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button  class="layui-btn layuiadmin-btn-order" lay-submit lay-filter="app-ms-list-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                        搜素
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!--数据表-->
+        <div class="layui-card-body">
+            <div class="app-ms-list" style="padding-bottom: 10px;">
+                <button class="layui-btn layuiadmin-btn-useradmin layui-btn-normal layui-btn-sm" data-type="add">添加</button>
+                <button class="layui-btn layuiadmin-btn-useradmin layui-btn-sm" data-type="closeMsWork">一键停工</button>
+<!--                <button class="layui-btn layuiadmin-btn-useradmin layui-btn-danger layui-btn-sm" data-type="batchdel">删除</button>-->
+                <!--<button class="layui-btn batchprofit layuiadmin-btn-useradmin layui-btn-danger layui-btn-sm"  data-type="batchprofit">一键分成</button>-->
+            </div>
+            
+            <div class="app-channel-btns" style="margin-bottom: 10px;">
+                <blockquote class="layui-elem-quote layui-quote-nm">
+                    码商总余额：<span id="total" class="layui-badge layui-bg-green">{$msMoney}</span> 元
+
+                </blockquote>
+                <blockquote class="layui-elem-quote layui-quote-nm">
+                    可接单码商：<span id="on-line" class="layui-badge layui-bg-green">{$online}</span> 个
+                </blockquote>
+            </div>
+
+            <table id="app-ms-list" lay-filter="app-ms-list"> </table>
+
+            <script type="text/html" id="table-ms-webuser">
+                {{#  if(d.google_status == '1'){ }}
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="cleargoogleauth"><i
+                        class="layui-icon layui-icon-delete"></i>清除google</a>
+                {{#  } }}
+                <a  class="layui-btn layui-btn-xs" lay-event="assign_channels"><i class="layui-icon layui-icon-edit"></i>费率</a>
+                <a  class="layui-btn layui-btn-normal layui-btn-xs" lay-event="details"><i class="layui-icon layui-icon-edit"></i>流水</a>
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
+                        class="layui-icon layui-icon-edit"></i>编辑</a>
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="op_white_ip"><i
+                        class="layui-icon layui-icon-edit"></i>白名单</a>
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="op_balance"><i
+                        class="layui-icon layui-icon-edit"></i>增减余额</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
+                        class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+            
+            <script type="text/javascript" charset="utf-8" id="table-ms-jdstatus">
+        
+                   <input type="checkbox" name="editMsJdStatus" lay-filter="editMsJdStatus" userid={{d.userid}} lay-skin="switch" ms_jd_status={{d.work_status}} lay-text="开启|关闭"  {{d.work_status == 1 ? 'checked':''}}/>
+  
+            </script>
+            
+               <script type="text/javascript" charset="utf-8" id="table-ms-status">
+    
+                   <input type="checkbox" id="editMsStatus" name="editMsStatus" lay-filter="editMsStatus" userid={{d.userid}} lay-skin="switch" ms_status={{d.status}} lay-text="正常|禁用" {{d.status == 1 ? 'checked':''}} />
+
+
+            </script>
+        </div>
+    </div>
+</div>
+
+<script src="__ADMIN__/layui/layui.js"></script>
+<script src="__STATIC__/cloudui/js/define.js"></script>
+<script>
+    layui.config({
+        base: '__ADMIN__/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'user', 'laydate', 'table'], function () {
+        var $ = layui.$
+            , form = layui.form
+            , laydate = layui.laydate
+            , table = layui.table;
+
+        //监听搜索
+        form.on('submit(app-ms-list-search)', function (data) {
+            var field = data.field;
+            console.log(111111111111)
+            console.log($(this).attr('id') == 'param_search');
+            //监听搜索分页为1
+            //执行重载
+            table.reload('app-ms-list', {
+                where: field,
+                page: {
+                    curr: 1,
+                }
+            });
+
+            $.ajax({
+                url : 'searchMsMoney',
+                type : 'get',
+                data:field,
+                dataType:'json',
+                success : function(data) {
+                    console.log(data);
+                    $("#total").text(data.data);
+                }
+            })
+        });
+        
+             form.on('switch(editMsJdStatus)',function (data) {
+                                            //获取所需属性值
+                      var ms_jd_status = data.elem.attributes['ms_jd_status'].nodeValue;
+                      var userid = data.elem.attributes['userid'].nodeValue;
+                    //   console.log(ms_status)
+                        $.ajax({
+                            url:'editMsJdStatus?userid=' + userid,
+                            method:'post',
+                            data:{ms_jd_status:ms_jd_status},
+                            success:function(res){
+                                if(res.code == 1){
+                                    $("#on-line").text(res.data);
+                                    window.location.fresh
+                                    table.reload('app-ms-list');
+                                }else{
+                                    window.location.fresh
+                                }
+                            }
+                        })
+                })
+                
+                
+                        
+             form.on('switch(editMsStatus)',function (data) {
+        
+                                            //获取所需属性值
+                      var ms_status = data.elem.attributes['ms_status'].nodeValue;
+                      var userid = data.elem.attributes['userid'].nodeValue;
+                    //   console.log(ms_status)
+                        $.ajax({
+                            url:'editMsStatus?userid=' + userid,
+                            method:'post',
+                            data:{ms_status:ms_status},
+                            success:function(res){
+                                if(res.code == 1){
+                                    window.location.fresh
+                                    table.reload('app-ms-list');
+                                }else{
+                                    window.location.fresh
+                                }
+                            }
+                        })
+                })
+
+
+        //事件
+        var active = {
+            batchdel: function(){
+                var checkStatus = table.checkStatus('app-ms-list')
+                    ,checkData = checkStatus.data; //得到选中的数据
+
+                if(checkData.length === 0){
+                    return layer.msg('请选择数据');
+                }
+                layer.prompt({
+                    formType: 1
+                    ,title: '敏感操作，请验证口令'
+                }, function(value, index){
+                    layer.close(index);
+                    layer.confirm('确定删除吗？', function(index) {
+
+                        table.reload('app-ms-list');
+                        layer.msg('等待开发...');
+                    });
+                });
+            }
+            ,add: function(){
+                layer.open({
+                    type: 2
+                    ,title: '添加码商'
+                    ,content: 'add'
+                    ,maxmin: true
+                    ,area: ['80%','60%']
+                    ,btn: ['确定', '取消']
+                    ,yes: function(index, layero){
+                        var iframeWindow = window['layui-layer-iframe'+ index]
+                            ,submitID = 'app-ms-list-submit'
+                            ,submit = layero.find('iframe').contents().find('#'+ submitID);
+
+                        //监听提交
+                        iframeWindow.layui.form.on('submit('+ submitID +')', function(obj){
+                            var field = obj.field; //获取提交的字段
+
+                            //提交 Ajax 成功后，静态更新表格中的数据
+                            $.ajax({
+                                url:'add',
+                                method:'POST',
+                                data:field,
+                                success:function (res) {
+                                    if (res.code == 1){
+                                        table.reload('app-ms-list'); //数据刷新
+                                    }
+                                    layer.msg(res.msg, {icon: res.code == 1 ? 1: 2,time: 1500});
+                                    layer.close(index); //关闭弹层
+                                }
+                            });
+                        });
+
+                        submit.trigger('click');
+                    }
+                });
+            },
+            closeMsWork: function (){
+                $.post('closeMsWork',function (res){
+                    if (res.code == 1){
+                        layer.msg('请求成功',{icon:1,time:1500},function (){
+                            table.reload('app-ms-list');
+                        })
+                    }
+                })
+            }
+        };
+
+        $('.layui-btn.layuiadmin-btn-useradmin').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+    });
+</script>
+</body>
+</html>

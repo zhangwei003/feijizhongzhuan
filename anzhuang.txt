@@ -1,0 +1,2 @@
+git 相关
+git config core.filemode false

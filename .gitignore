@@ -1,0 +1,6 @@
+.idea/
+data/runtime
+
+error_sign.log
+nginx.htaccess
+node_modules
