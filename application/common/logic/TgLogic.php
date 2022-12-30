@@ -306,7 +306,7 @@ class TgLogic extends BaseLogic
         }
 
         if ($send_message){
-            $this->sendMessageTogroup(urlencode($send_message), $group_chat_id, $option);
+            $this->sendMessageTogroup($send_message, $group_chat_id, $option);
         }
 
     }
