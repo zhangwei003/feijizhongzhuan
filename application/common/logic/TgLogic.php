@@ -73,6 +73,9 @@ class TgLogic extends BaseLogic
             'text' => $text,
         ];
         $data = array_merge($data, $option);
+        echo $url;
+        echo '<br/>';
+        halt($data);
         return json_decode(httpRequest($url, 'POST', $data), true);
     }
 
@@ -307,7 +310,7 @@ class TgLogic extends BaseLogic
         if (preg_match('/^设置操作人$/', $command, $matches)){  //设置操作人
             halt($matches[1]);
         }
-        echo $message;die();
+
         if ($send_message){
             $this->sendMessageTogroup($send_message, $group_chat_id, $option);
         }
