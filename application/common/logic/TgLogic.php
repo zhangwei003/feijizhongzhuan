@@ -224,6 +224,7 @@ class TgLogic extends BaseLogic
         $group_id = $this->joinGroup($group_chat_id, $user_chat_id);
         $send_message = '';
         $option = [];
+        $group_info = $this->modelTgStatisticsGroup->find($group_id);
 
         //设置费率
         if (preg_match('/^\/set (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
@@ -236,15 +237,25 @@ class TgLogic extends BaseLogic
             $ret = $this->addBill($group_id, $user_chat_id, $matches[1]);
 
             if ($ret){
-                $send_message = '设置费率成功，当前费率 ：' . $matches[1];
+                $one_data = $this->modelTgTradingHouseData->find();
+
+                $rate = $group_info['rate'];
+                $rate_c  = $group_info['rate'] ? $group_info['rate']/100 : 1;
+                $rate_usdt = bcdiv(bcmul($matches[1], $rate_c, 2), $one_data['price_buy'], 2)  ;
+                $sur_usdt = bcdiv(bcsub($matches[1], bcdiv($matches[1], $one_data['price_buy'], 2), 2), $one_data['price_buy'], 2) ;
+
+                $send_message = $this->modelTgTradingHouseData->getTgMessage().PHP_EOL.PHP_EOL;
+
+                $send_message .= "<code>币数 ：($matches[1] ÷ {$one_data['price_buy']}) - {$rate}% = {$sur_usdt}USDT</code>". PHP_EOL;
+                $send_message .= "<code>手续费: {$rate}% = {$rate_usdt}USDT</code>". PHP_EOL;
+
             }
         }
 
-//        halt('出来了');
         //设置费率
         if (preg_match('/^\/set (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
             $ret = $this->setRate($group_id, $matches[1]);
-            $ret && $send_message = '设置费率成功，当前费率 ：' . $matches[1];
+            $ret && $send_message = '设置费率成功，当前费率 ：' . $matches[1] . '%';
         }
 
         //交易行全部
