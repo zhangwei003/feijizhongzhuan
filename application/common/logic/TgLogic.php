@@ -221,7 +221,7 @@ class TgLogic extends BaseLogic
         $option = [];
 
         if (strcasecmp($command ,'l')){
-            $this->
+
         }
 
         if (strcasecmp($command ,'lz')){
