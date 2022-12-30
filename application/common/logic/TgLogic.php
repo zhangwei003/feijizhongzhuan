@@ -67,15 +67,16 @@ class TgLogic extends BaseLogic
      */
     public function sendMessageTogroup($text, $chat_id, $option = [])
     {
+        halt(230);
         $url = 'https://api.telegram.org/bot' . $this->tgToken . '/sendMessage';
         $data = [
             'chat_id' => $chat_id,
             'text' => $text,
         ];
-        $data = array_merge($data, $option);
-        echo $url;
-        echo '<br/>';
-        halt($data);
+//        $data = array_merge($data, $option);
+//        echo $url;
+//        echo '<br/>';
+//        halt($data);
         return json_decode(httpRequest($url, 'POST', $data), true);
     }
 
@@ -236,10 +237,7 @@ class TgLogic extends BaseLogic
 
             if ($ret){
                 $send_message = '设置费率成功，当前费率 ：' . $matches[1];
-                $send_message = '设置费率成功，当前费率 ：' . $matches[1];
-
             }
-            echo $send_message;die();
         }
 
 //        halt('出来了');
@@ -255,7 +253,6 @@ class TgLogic extends BaseLogic
                 'parse_mode' => 'HTML'
             ];
             $message = $this->modelTgTradingHouseData->getTgMessage();
-            echo $message; die();
         }
 
         //交易行支付宝
@@ -264,7 +261,6 @@ class TgLogic extends BaseLogic
                 'parse_mode' => 'HTML'
             ];
             $message = $this->modelTgTradingHouseData->getTgMessage('lz');
-            echo $message; die();
         }
 
         //交易行银行卡
@@ -273,7 +269,6 @@ class TgLogic extends BaseLogic
                 'parse_mode' => 'HTML'
             ];
             $message = $this->modelTgTradingHouseData->getTgMessage('lk');
-            echo $message; die();
         }
 
         //交易行微信
@@ -282,7 +277,6 @@ class TgLogic extends BaseLogic
                 'parse_mode' => 'HTML'
             ];
             $message = $this->modelTgTradingHouseData->getTgMessage('lw');
-            echo $message; die();
         }
 
         if (preg_match('/^设置费率(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\%$/', $command, $matches)){
