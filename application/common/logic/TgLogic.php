@@ -67,16 +67,15 @@ class TgLogic extends BaseLogic
      */
     public function sendMessageTogroup($text, $chat_id, $option = [])
     {
-        halt(230);
         $url = 'https://api.telegram.org/bot' . $this->tgToken . '/sendMessage';
         $data = [
             'chat_id' => $chat_id,
             'text' => $text,
         ];
         $data = array_merge($data, $option);
-        echo $url;
+/*        echo $url;
         echo '<br/>';
-        halt($data);
+        halt($data);*/
         return json_decode(httpRequest($url, 'POST', $data), true);
     }
 
@@ -252,7 +251,7 @@ class TgLogic extends BaseLogic
             $option = [
                 'parse_mode' => 'HTML'
             ];
-            $message = $this->modelTgTradingHouseData->getTgMessage();
+            $send_message = $this->modelTgTradingHouseData->getTgMessage();
         }
 
         //交易行支付宝
@@ -260,7 +259,7 @@ class TgLogic extends BaseLogic
             $option = [
                 'parse_mode' => 'HTML'
             ];
-            $message = $this->modelTgTradingHouseData->getTgMessage('lz');
+            $send_message = $this->modelTgTradingHouseData->getTgMessage('lz');
         }
 
         //交易行银行卡
@@ -268,7 +267,7 @@ class TgLogic extends BaseLogic
             $option = [
                 'parse_mode' => 'HTML'
             ];
-            $message = $this->modelTgTradingHouseData->getTgMessage('lk');
+            $send_message = $this->modelTgTradingHouseData->getTgMessage('lk');
         }
 
         //交易行微信
@@ -276,7 +275,7 @@ class TgLogic extends BaseLogic
             $option = [
                 'parse_mode' => 'HTML'
             ];
-            $message = $this->modelTgTradingHouseData->getTgMessage('lw');
+            $send_message = $this->modelTgTradingHouseData->getTgMessage('lw');
         }
 
         if (preg_match('/^设置费率(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\%$/', $command, $matches)){
@@ -302,7 +301,7 @@ class TgLogic extends BaseLogic
         }
 
         if (preg_match('/^设置操作人$/', $command, $matches)){  //设置操作人
-            halt($matches[1]);
+//            halt($matches[1]);
         }
 
         if ($send_message){
