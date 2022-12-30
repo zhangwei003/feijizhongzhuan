@@ -73,9 +73,9 @@ class TgLogic extends BaseLogic
             'text' => $text,
         ];
         $data = array_merge($data, $option);
-        echo $url;
-        echo '<br/>';
-        halt($data);
+//        echo $url;
+//        echo '<br/>';
+//        halt($data);
         return json_decode(httpRequest($url, 'POST', $data), true);
     }
 
@@ -305,7 +305,7 @@ class TgLogic extends BaseLogic
         }
 
         if ($send_message){
-            $this->sendMessageTogroup($send_message, $group_chat_id, $option);
+            $this->sendMessageTogroup(urlencode($send_message), $group_chat_id, $option);
         }
 
     }
