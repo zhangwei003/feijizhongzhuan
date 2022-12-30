@@ -74,9 +74,9 @@ class TgLogic extends BaseLogic
             'text' => $text,
         ];
         $data = array_merge($data, $option);
-//        echo $url;
-//        echo '<br/>';
-//        halt($data);
+        echo $url;
+        echo '<br/>';
+        halt($data);
         return json_decode(httpRequest($url, 'POST', $data), true);
     }
 
