@@ -73,7 +73,7 @@ class TgLogic extends BaseLogic
             'chat_id' => $chat_id,
             'text' => $text,
         ];
-//        $data = array_merge($data, $option);
+        $data = array_merge($data, $option);
 //        echo $url;
 //        echo '<br/>';
 //        halt($data);
