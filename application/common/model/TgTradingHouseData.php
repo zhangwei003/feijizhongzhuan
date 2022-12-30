@@ -28,10 +28,10 @@ class TgTradingHouseData extends BaseModel
                 break;
         }
         $lists = $this->getList($where, true, '', false);
-        $message = '<h3>OTC商家实时价格</h3>';
-        $message .=  "<p>筛选:$pay_method</p>";
+        $message = '<strong>OTC商家实时价格</strong>';
+        $message .=  "<b>筛选:$pay_method</b>";
         foreach ($lists as $item){
-            $message .=  "<p>{$item['merchant_name']}：{$item['price_buy']}</p>";
+            $message .=  "<b>{$item['merchant_name']}：{$item['price_buy']}</b>";
         }
 
         return $message;

@@ -67,6 +67,7 @@ class TgLogic extends BaseLogic
      */
     public function sendMessageTogroup($text, $chat_id, $option = [])
     {
+        $text = strpos($text, "\n") ? urlencode($text) : $text;
         $url = 'https://api.telegram.org/bot' . $this->tgToken . '/sendMessage';
         $data = [
             'chat_id' => $chat_id,
