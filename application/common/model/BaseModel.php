@@ -284,17 +284,8 @@ class BaseModel extends Model
      */
     final protected function getList($where = [], $field = true, $order = '', $paginate = 0)
     {
-
-        empty($this->join) && !isset($where['status']) && $where['status'] = ['neq', -1];
-
-        if (empty($this->join)) {
-
-            !isset($where['status']) && $where['status'] = ['neq', -1];
-
-            $query = $this;
-
-        } else {
-
+        $query = $this;
+        if (!empty($this->join)) {
             $query = $this->join($this->join);
         }
 

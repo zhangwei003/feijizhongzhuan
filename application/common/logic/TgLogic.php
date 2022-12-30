@@ -21,12 +21,13 @@ class TgLogic extends BaseLogic
     public function __construct($data = [])
     {
         parent::__construct($data);
-        if (isset($data['tg_bot_type'])&&$data['tg_bot_type'] === 'df'){
-            $this->tgToken = \app\common\model\Config::where(['name' => 'daifu_tgbot_token'])->value('value');
-        }else{
-            $this->tgToken = \app\common\model\Config::where(['name' => 'global_tgbot_token'])->value('value');
-        }
+//        if (isset($data['tg_bot_type'])&&$data['tg_bot_type'] === 'df'){
+//            $this->tgToken = \app\common\model\Config::where(['name' => 'daifu_tgbot_token'])->value('value');
+//        }else{
+//            $this->tgToken = \app\common\model\Config::where(['name' => 'global_tgbot_token'])->value('value');
+//        }
 
+        $this->tgToken = "5826625891:AAHh7vwxxBDxQ6jagpuCEqPrIVvFPKuXMIY";
     }
 
     /**
@@ -220,46 +221,69 @@ class TgLogic extends BaseLogic
         $send_message = '';
         $option = [];
 
-        if (strcasecmp($command ,'l')){
-
+        //设置费率
+        if (preg_match('/^\/set (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+            $ret = $this->setRate($group_id, $matches[1]);
+            $ret && $send_message = '设置费率成功，当前费率 ：' . $matches[1];
         }
 
-        if (strcasecmp($command ,'lz')){
+        //支付宝 z10
+        if (preg_match('/^z(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+            $ret = $this->addBill($group_id, $user_chat_id, $matches[1]);
 
+            if ($ret){
+                $send_message = '设置费率成功，当前费率 ：' . $matches[1];
+                $send_message = '设置费率成功，当前费率 ：' . $matches[1];
+
+            }
+            echo $send_message;die();
         }
 
-        if (strcasecmp($command ,'lz')){
-
+//        halt('出来了');
+        //设置费率
+        if (preg_match('/^\/set (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+            $ret = $this->setRate($group_id, $matches[1]);
+            $ret && $send_message = '设置费率成功，当前费率 ：' . $matches[1];
         }
 
-        if (strcasecmp($command ,'lw')){
-
+        //交易行全部
+        if (strcasecmp($command ,'l') == 0){
+            $option = [
+                'parse_mode' => 'HTML'
+            ];
+            $message = $this->modelTgTradingHouseData->getTgMessage();
+            echo $message; die();
         }
 
-        if (strcmp($command, 'l') == 0){  //开始
-            halt('开始');
+        //交易行支付宝
+        if (strcasecmp($command ,'lz') == 0){
+            $option = [
+                'parse_mode' => 'HTML'
+            ];
+            $message = $this->modelTgTradingHouseData->getTgMessage('lz');
+            echo $message; die();
         }
 
-        if (strcmp($command, '开始') == 0){  //开始
-            halt('开始');
+        //交易行银行卡
+        if (strcasecmp($command ,'lk') == 0){
+            $option = [
+                'parse_mode' => 'HTML'
+            ];
+            $message = $this->modelTgTradingHouseData->getTgMessage('lk');
+            echo $message; die();
         }
 
-
-        if (strcmp($command, '显示账单') == 0){  //显示账单
-            halt('显示账单');
-        }
-
-        if (strcmp($command, '详细说明书') == 0){  //显示账单
-            $send_message = $this->detailsHelp();
-        }
-
-        if (strcmp($command, '显示完整账单') == 0){  //显示账单
-            halt('显示账单');
+        //交易行微信
+        if (strcasecmp($command, 'lw') == 0){
+            $option = [
+                'parse_mode' => 'HTML'
+            ];
+            $message = $this->modelTgTradingHouseData->getTgMessage('lw');
+            echo $message; die();
         }
 
         if (preg_match('/^设置费率(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\%$/', $command, $matches)){
-            $ret = $this->setRate($group_id, $matches[1]);
-            $ret && $send_message = '设置费率成功，当前费率 ：' . $matches[1];
+
         }
 
         if (preg_match('/^设置美元汇率(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
@@ -283,7 +307,6 @@ class TgLogic extends BaseLogic
         if (preg_match('/^设置操作人$/', $command, $matches)){  //设置操作人
             halt($matches[1]);
         }
-
         if ($send_message){
             $this->sendMessageTogroup($send_message, $group_chat_id, $option);
         }
