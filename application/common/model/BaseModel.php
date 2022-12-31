@@ -310,6 +310,49 @@ class BaseModel extends Model
     }
 
     /**
+     * 获取列表数据
+     * 若不需要分页 $paginate 设置为 false
+     *
+     * @author 勇敢的小笨羊 <brianwaring98@gmail.com>
+     *
+     * @param array $where
+     * @param bool $field
+     * @param string $order
+     * @param int $paginate
+     * @return false|\PDOStatement|string|\think\Collection|\think\Paginator
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    final protected function getListV2($where = [], $field = true, $order = '', $paginate = 0, $limit = '')
+    {
+        $query = $this;
+        if (!empty($this->join)) {
+            $query = $this->join($this->join);
+        }
+
+        $query = $query->where($where)->order($order)->field($field);
+
+        !empty($this->group) && $query->group($this->group);
+
+        if (false === $paginate) {
+            !empty($this->limit) && $query->limit((input('page') - 1) * input('limit'),input('limit'));
+
+            $list = $query->select();
+
+
+        } else {
+            $list_rows = empty($paginate) || !$paginate ? 15 : $paginate;
+
+            $list = $query->paginate(input('list_rows', $list_rows), false, ['query' => request()->param()]);
+        }
+        $this->join = []; $this->limit = []; $this->group = [];
+
+        return $list;
+    }
+
+
+    /**
      * 原生查询
      *
      * @author 勇敢的小笨羊 <brianwaring98@gmail.com>

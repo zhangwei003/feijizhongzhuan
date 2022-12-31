@@ -27,7 +27,7 @@ class TgTradingHouseData extends BaseModel
                 $where = [];
                 break;
         }
-        $lists = $this->getList($where, true, '', false);
+        $lists = $this->where($where)->limit(10)->select();
         $message = '<strong>OTC商家实时价格</strong>'. PHP_EOL;
         $message .=  "<code>筛选:$pay_method</code>". PHP_EOL;
         foreach ($lists as $item){

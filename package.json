@@ -1,8 +1,0 @@
-{
-  "devDependencies": {
-    "lite-server": "^2.6.1"
-  },
-  "dependencies": {
-    "puppeteer": "^19.4.1"
-  }
-}

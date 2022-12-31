@@ -126,7 +126,7 @@ class OkxSpider extends Command
         if (!empty($lists_data)){
             Db::query('truncate table cm_tg_trading_house_data');
             //只获取前十
-            Db::name('tg_trading_house_data')->insertAll(array_slice($lists_data,0,10));
+            Db::name('tg_trading_house_data')->insertAll($lists_data);
         }
 
         Log::notice("[". date('Y-m-d H:i:s' ,time()) ."] 采集数据完成");
