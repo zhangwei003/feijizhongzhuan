@@ -337,6 +337,9 @@ class TgLogic extends BaseLogic
             preg_match('/^入款(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)
         ){  //入款
             $ret = $this->addBill($group_id, $user_chat_id, $matches[1]);
+            $option = [
+                'parse_mode' => 'HTML'
+            ];
             if ($ret){
                 $send_message = $this->modelTgBill->getBill($group_id);
             }
@@ -346,6 +349,9 @@ class TgLogic extends BaseLogic
             preg_match('/^下发(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)
         ){  //入款
             $ret = $this->addBill($group_id, $user_chat_id, $matches[1], 2);
+            $option = [
+                'parse_mode' => 'HTML'
+            ];
             if ($ret){
                 $send_message = $this->modelTgBill->getBill($group_id);
             }
