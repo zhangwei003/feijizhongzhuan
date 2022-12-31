@@ -238,6 +238,38 @@ class TgLogic extends BaseLogic
             $ret && $send_message = "入款规则手续费：$matches[1]%";
         }
 
+        //交易行全部
+        if (strcasecmp($command ,'l') == 0){
+            $option = [
+                'parse_mode' => 'HTML'
+            ];
+            $send_message = $this->modelTgTradingHouseData->getTgMessage();
+        }
+
+        //交易行支付宝
+        if (strcasecmp($command ,'lz') == 0){
+            $option = [
+                'parse_mode' => 'HTML'
+            ];
+            $send_message = $this->modelTgTradingHouseData->getTgMessage('lz');
+        }
+
+        //交易行银行卡
+        if (strcasecmp($command ,'lk') == 0){
+            $option = [
+                'parse_mode' => 'HTML'
+            ];
+            $send_message = $this->modelTgTradingHouseData->getTgMessage('lk');
+        }
+
+        //交易行微信
+        if (strcasecmp($command, 'lw') == 0){
+            $option = [
+                'parse_mode' => 'HTML'
+            ];
+            $send_message = $this->modelTgTradingHouseData->getTgMessage('lw');
+        }
+
         //支付宝 z10
         if (preg_match('/^z(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
             $option = [
@@ -318,7 +350,7 @@ class TgLogic extends BaseLogic
                 $send_message = $this->modelTgBill->getBill($group_id);
             }
         }
-        
+
         if ($send_message){
             $this->sendMessageTogroup($send_message, $group_chat_id, $option);
         }
