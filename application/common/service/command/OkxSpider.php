@@ -129,7 +129,7 @@ class OkxSpider extends Command
             Db::name('tg_trading_house_data')->insertAll($lists_data);
         }
 
-        Log::notice("[". date('Y-m-d H:i:s' ,time()) ."] 采集数据完成");
+//        Log::notice("[". date('Y-m-d H:i:s' ,time()) ."] 采集数据完成");
         $output->info("采集数据完成");
 
     }

@@ -425,7 +425,7 @@ class TgLogic extends BaseLogic
                 $insert['group_id'] = $group_id;
                 $insert['user_chat_id'] = $user_chat_id;
                 $insert['operation'] = $operation;
-                $insert['num'] = abs($amount);
+                $insert['num'] = $amount;
                 $insert['pre_amount'] = $group['amount'];
                 $insert['last_amount'] = $group['amount'] + $amount;
                 $insert['create_time'] = time();

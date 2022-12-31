@@ -32,20 +32,25 @@ class TgBill extends BaseModel
 
         $total_rk = $this->modelTgBill->where('operation', 1)->whereTime('create_time', 'd')->sum('num');
         $total_ck = $this->modelTgBill->where('operation', 2)->whereTime('create_time', 'd')->sum('num');
+
         $rk_rate_amount =  bcmul($total_rk, $group_info['rk_rate']/100);
-        $total_rk -= $rk_rate_amount;
 
-        $bijia = $one_data = $this->modelTgTradingHouseData->limit(1)->value('price_buy');
+        $y_total_rk = $total_rk - $rk_rate_amount;
 
-        $y_usdt_num = bcdiv($total_rk, $bijia, 2);
-        $yi_usdt_num = bcdiv($total_ck, $bijia, 2);
-        $w_usdt_num = bcdiv(bcsub( $total_rk, $total_ck, 2), $bijia);
+        $bijia = $this->modelTgTradingHouseData->limit(1)->value('price_buy');
+
+        $y_usdt_num = bcdiv($y_total_rk, $bijia, 2);
+
+        $yi_usdt_num = abs(bcdiv($total_ck, $bijia, 2));
+
+        $w_usdt_num = bcdiv(bcadd( $y_total_rk, $total_ck, 2), $bijia, 2);
+
         $send_message .= "<code>总入款{$total_rk}</code>\n";
         $send_message .= "<code>手续费{$group_info['rk_rate']}%</code>\n";
         $send_message .= "<code>当前币价{$bijia}</code>\n";
-        $send_message .= "<code>应下发{$total_rk} ｜ {$y_usdt_num}U</code>\n";
-        $send_message .= "<code>已下发{$total_ck} ｜ {$yi_usdt_num}U</code>\n";
-        $send_message .= "<code>未下发" .bcsub( $total_rk, $total_ck, 2) ." ｜ {$w_usdt_num}U</code>\n";
+        $send_message .= "<code>应下发{$y_total_rk} ｜ {$y_usdt_num}U</code>\n";
+        $send_message .= "<code>已下发" . abs($total_ck )." ｜ {$yi_usdt_num}U</code>\n";
+        $send_message .= "<code>未下发" .bcadd( $y_total_rk, $total_ck, 2) ." ｜ {$w_usdt_num}U</code>\n";
         $send_message .= "<code>共计{$bishu}笔</code>\n";
 
         return $send_message;
