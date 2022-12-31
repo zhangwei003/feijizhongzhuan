@@ -105,8 +105,8 @@ class OkxSpider extends Command
             $browser->close();
             return $html;
         }, [
-            'headless' => false, // 启动可视化Chrome浏览器,方便调试
-            'devtools' => true,
+//            'headless' => false, // 启动可视化Chrome浏览器,方便调试
+//            'devtools' => true,
             'args' => ['--no-sandbox']
         ]);
 
