@@ -425,7 +425,7 @@ class TgLogic extends BaseLogic
                 $insert['group_id'] = $group_id;
                 $insert['user_chat_id'] = $user_chat_id;
                 $insert['operation'] = $operation;
-                $insert['num'] = $amount;
+                $insert['num'] = abs($amount);
                 $insert['pre_amount'] = $group['amount'];
                 $insert['last_amount'] = $group['amount'] + $amount;
                 $insert['create_time'] = time();
@@ -438,54 +438,6 @@ class TgLogic extends BaseLogic
             Db::rollback();
             new Exception('ERROR');
         }
-    }
-
-    public function detailsHelp()
-    {
-        return "①增加机器人进群。群右上角--Add member-输入@SmartBillH1_Bot\n
-                ②输入”设置费率X.X%“\n
-                ③输入”设置美元汇率6.5”\n
-                ④输入”开始”，每天必须先输入此命令，机器人才会开始记录。默认是每天4点至第二天4点\n
-                
-                
-                ⑤其它命令：\n
-                +100\n
-                下发100\n
-                下发100u\n
-                +100/6.5\n
-                显示账单   显示最近5条数据。\n
-                显示完整账单  出现链接，点击链接显示今天/昨天所有入款数据。\n
-                
-                设置操作人 @xxxxx @xxxx  设置群成员使用。先打空格再打@，会弹出选择更方便。注：再次设置的话就是新增。\n
-                 -或群内回复某人消息发：设置为操作人\n
-                显示操作人\n
-                删除操作人 @xxxxx 先输入“删除操作人” 然后空格，再打@，就出来了选择，这样更方便\n
-                
-                设置美元汇率6.5  如需显示美元，可设置这个，汇率可改变，隐藏的话再次设置为0。\n
-                设置比索汇率7.2  如需显示比索，同上。\n
-                
-                设置为计数模式  只显示入款简洁模式\n
-                设置显示模式2  账单显示3条\n
-                设置显示模式3  账单显示1条\n
-                设置显示模式4  只显示总入款\n
-                设置为原始模式\n
-                清理今天数据  慎用，必须由权限人发送命令\n
-                结束记录\n
-                
-                ⑥如果输入错误，可以用 入款-XXX  或 下发-XXX，来修正\n
-                
-                ⑦【USDT独立功能】命令：\n
-                lk  列出欧易实时价银行卡价格\n
-                lz  列出支付宝价格\n
-                lw  列出微信价格\n
-                
-                k100   实时卡价计算100元换算usdt\n
-                z100   实时支价计算100元换算usdt\n
-                w100   实时微价计算100元换算usdt\n
-                
-                /set 5   设置费率5%\n
-                /gd 6.8   汇率固定\n
-                /usdt   设置币价功能";
     }
 
     public function getGroupAmount($group_id)
