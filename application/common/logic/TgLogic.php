@@ -356,7 +356,14 @@ class TgLogic extends BaseLogic
                 $send_message = $this->modelTgBill->getBill($group_id);
             }
         }
-//        halt($send_message);
+
+        if (preg_match('/^账单$/', $command, $matches) ){  //账单
+            $option = [
+                'parse_mode' => 'HTML'
+            ];
+            $send_message = $this->modelTgBill->getBill($group_id);
+        }
+
         if ($send_message){
             $this->sendMessageTogroup($send_message, $group_chat_id, $option);
         }
