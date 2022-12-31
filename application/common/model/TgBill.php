@@ -23,7 +23,7 @@ class TgBill extends BaseModel
         $today_date = date('Y-m-d', time());
         $today_time = date('H:i', time());
         $send_message = "<code>{$today_date}日小记</code>\n"  ;
-        $today_bill = $this->modelTgBill->whereTime('create_time', 'd')->select();
+        $today_bill = $this->modelTgBill->whereTime('create_time', 'd')->order('id desc')->limit(10)->select();
         foreach ($today_bill as $bill){
             $send_message .= "<code>{$today_time}    {$bill['num']}</code>\n" ;
         }
