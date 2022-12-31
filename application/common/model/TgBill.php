@@ -22,10 +22,10 @@ class TgBill extends BaseModel
         $group_info = $this->modelTgStatisticsGroup->find($group_id);
         $today_date = date('Y-m-d', time());
         $today_time = date('H:i', time());
-        $send_message = "<code>{$today_date}日小记</code>" ;
+        $send_message = "<code>{$today_date}日小记</code>\n"  ;
         $today_bill = $this->modelTgBill->whereTime('create_time', 'd')->select();
         foreach ($today_bill as $bill){
-            $send_message .= "<code>{$today_time}    {$bill['num']}</code>" ;
+            $send_message .= "<code>{$today_time}    {$bill['num']}</code>\n" ;
         }
 
         $bishu =  $this->modelTgBill->whereTime('create_time', 'd')->count();
@@ -40,13 +40,13 @@ class TgBill extends BaseModel
         $y_usdt_num = bcdiv($total_rk, $bijia, 2);
         $yi_usdt_num = bcdiv($total_ck, $bijia, 2);
         $w_usdt_num = bcdiv(bcsub( $total_rk, $total_ck, 2), $bijia);
-        $send_message .= "<code>总入款{$total_rk}</code>";
-        $send_message .= "<code>手续费{$group_info['rk_rate']}%</code>";
-        $send_message .= "<code>当前币价{$bijia}</code>";
-        $send_message .= "<code>应下发{$total_rk} ｜ {$y_usdt_num}U</code>";
-        $send_message .= "<code>已下发{$total_ck} ｜ {$yi_usdt_num}U</code>";
-        $send_message .= "<code>未下发" .bcsub( $total_rk, $total_ck, 2) ." ｜ {$w_usdt_num}U</code>";
-        $send_message .= "<code>共计{$bishu}笔</code>";
+        $send_message .= "<code>总入款{$total_rk}</code>\n";
+        $send_message .= "<code>手续费{$group_info['rk_rate']}%</code>\n";
+        $send_message .= "<code>当前币价{$bijia}</code>\n";
+        $send_message .= "<code>应下发{$total_rk} ｜ {$y_usdt_num}U</code>\n";
+        $send_message .= "<code>已下发{$total_ck} ｜ {$yi_usdt_num}U</code>\n";
+        $send_message .= "<code>未下发" .bcsub( $total_rk, $total_ck, 2) ." ｜ {$w_usdt_num}U</code>\n";
+        $send_message .= "<code>共计{$bishu}笔</code>\n";
 
         return $send_message;
     }
