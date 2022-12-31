@@ -232,6 +232,12 @@ class TgLogic extends BaseLogic
             $ret && $send_message = '设置费率成功，当前费率 ：' . $matches[1];
         }
 
+        //设置入款费率
+        if (preg_match('/^\/payset (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+            $ret = $this->setRkRate($group_id, $matches[1]);
+            $ret && $send_message = "入款规则手续费：$matches[1]%";
+        }
+
         //支付宝 z10
         if (preg_match('/^z(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
             $option = [
@@ -293,44 +299,26 @@ class TgLogic extends BaseLogic
 
             $send_message .= "<code>币数 ：($matches[1] ÷ {$one_data['price_buy']}) - {$rate}% = {$sur_usdt}USDT</code>". PHP_EOL;
             $send_message .= "<code>手续费: {$rate}% = {$rate_usdt}USDT</code>". PHP_EOL;
-
         }
 
-        //设置费率
-        if (preg_match('/^\/set (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
-            $ret = $this->setRate($group_id, $matches[1]);
-            $ret && $send_message = '设置费率成功，当前费率 ：' . $matches[1] . '%';
-        }
-
-
-
-
-        if (preg_match('/^设置费率(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\%$/', $command, $matches)){
-
-        }
-
-        if (preg_match('/^设置美元汇率(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
-            $ret = $this->setUsExchangeRate($group_id, $matches[1]);
-            $ret && $send_message = '设置美元汇率，当前美元汇率 ：' . $matches[1];
-        }
-
-        if (preg_match('/^\+(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){  //下发
+        if (preg_match('/^\+(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches) or
+            preg_match('/^入款(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)
+        ){  //入款
             $ret = $this->addBill($group_id, $user_chat_id, $matches[1]);
-            $ret && $send_message = '下发金额成功, 当前余额 ：' . $this->getGroupAmount($group_id);
+            if ($ret){
+                $send_message = $this->modelTgBill->getBill($group_id);
+            }
         }
 
-        if (preg_match('/^入款-(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches) or
-            preg_match('/^下发-(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)
-            ){  //入款-  || 下发-
+        if (preg_match('/^\-(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches) or
+            preg_match('/^下发(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)
+        ){  //入款
             $ret = $this->addBill($group_id, $user_chat_id, $matches[1], 2);
-            $ret && $send_message = '修正成功, 当前余额 ：' . $this->getGroupAmount($group_id);
-
+            if ($ret){
+                $send_message = $this->modelTgBill->getBill($group_id);
+            }
         }
-
-        if (preg_match('/^设置操作人$/', $command, $matches)){  //设置操作人
-//            halt($matches[1]);
-        }
-echo $send_message;die();
+        
         if ($send_message){
             $this->sendMessageTogroup($send_message, $group_chat_id, $option);
         }
@@ -365,6 +353,15 @@ echo $send_message;die();
         return Db::name('tg_statistics_group')->update([
             'id' => $group_id,
             'rate' => $rate,
+            'update_time' => time()
+        ]);
+    }
+
+    public function setRkRate($group_id, $rate)
+    {
+        return Db::name('tg_statistics_group')->update([
+            'id' => $group_id,
+            'rk_rate' => $rate,
             'update_time' => time()
         ]);
     }
