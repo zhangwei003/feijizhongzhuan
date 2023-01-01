@@ -21,17 +21,17 @@ class TgBill extends BaseModel
     public function getBill($group_id){
         $group_info = $this->modelTgStatisticsGroup->find($group_id);
         $today_date = date('Y-m-d', time());
-        $today_time = date('H:i', time());
         $send_message = "<code>{$today_date}日小记</code>\n"  ;
         $today_bill = $this->modelTgBill->whereTime('create_time', 'd')->order('id desc')->limit(10)->select();
         foreach ($today_bill as $bill){
+            $today_time = date('H:i', $bill['create_time']);
             $send_message .= "<code>{$today_time}    {$bill['num']}</code>\n" ;
         }
 
         $bishu =  $this->modelTgBill->whereTime('create_time', 'd')->count();
-
-        $total_rk = $this->modelTgBill->where('operation', 1)->whereTime('create_time', 'd')->sum('num');
-        $total_ck = $this->modelTgBill->where('operation', 2)->whereTime('create_time', 'd')->sum('num');
+        $whereCommon['group_id'] = $group_id;
+        $total_rk = $this->modelTgBill->where(array_merge($whereCommon, array('operation' => 1)))->whereTime('create_time', 'd')->sum('num');
+        $total_ck = $this->modelTgBill->where(array_merge($whereCommon, array('operation' => 2)))->whereTime('create_time', 'd')->sum('num');
 
         $rk_rate_amount =  bcmul($total_rk, $group_info['rk_rate']/100);
 
