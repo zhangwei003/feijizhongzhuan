@@ -31,7 +31,7 @@ class TgBill extends BaseModel
             $send_message .= "<code>{$today_time}    {$bill['num']}</code>\n" ;
         }
 
-        $bishu =  $this->modelTgBill->whereTime('create_time', 'd')->count();
+        $bishu =  $this->modelTgBill->where($whereCommon)->whereTime('create_time', 'd')->count();
 
         $total_rk = $this->modelTgBill->where(array_merge($whereCommon, array('operation' => 1)))->whereTime('create_time', 'd')->sum('num');
         $total_ck = $this->modelTgBill->where(array_merge($whereCommon, array('operation' => 2)))->whereTime('create_time', 'd')->sum('num');
