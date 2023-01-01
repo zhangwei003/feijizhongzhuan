@@ -24,7 +24,7 @@ class TgBill extends BaseModel
         $send_message = "<code>{$today_date}日小记</code>\n"  ;
         $today_bill = $this->modelTgBill->whereTime('create_time', 'd')->order('id desc')->limit(10)->select();
         foreach ($today_bill as $bill){
-            $today_time = date('H:i', $bill['create_time']);
+            $today_time = date('H:i', strtotime($bill['create_time']));
             $send_message .= "<code>{$today_time}    {$bill['num']}</code>\n" ;
         }
 
@@ -49,7 +49,7 @@ class TgBill extends BaseModel
         $send_message .= "<code>手续费{$group_info['rk_rate']}%</code>\n";
         $send_message .= "<code>当前币价{$bijia}</code>\n";
         $send_message .= "<code>应下发{$y_total_rk} ｜ {$y_usdt_num}U</code>\n";
-        $send_message .= "<code>已下发" . abs($total_ck )." ｜ {$yi_usdt_num}U</code>\n";
+        $send_message .= "<code>已下发" . abs($total_ck)." ｜ {$yi_usdt_num}U</code>\n";
         $send_message .= "<code>未下发" .bcadd( $y_total_rk, $total_ck, 2) ." ｜ {$w_usdt_num}U</code>\n";
         $send_message .= "<code>共计{$bishu}笔</code>\n";
 
