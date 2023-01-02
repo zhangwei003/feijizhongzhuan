@@ -333,9 +333,8 @@ class TgLogic extends BaseLogic
             $option = [
                 'parse_mode' => 'HTML'
             ];
-            $send_message = $this->modelTgTradingHouseData->getTgMessage('l').PHP_EOL.PHP_EOL;
             $USDT =  bcdiv($matches[1], $matches[4],2);
-            $send_message .= "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
+            $send_message = "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
         }
 
         //直接乘法表达式
@@ -343,9 +342,8 @@ class TgLogic extends BaseLogic
             $option = [
                 'parse_mode' => 'HTML'
             ];
-            $send_message = $this->modelTgTradingHouseData->getTgMessage('l').PHP_EOL.PHP_EOL;
             $USDT =  bcmul ($matches[1], $matches[4],2);
-            $send_message .= "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
+            $send_message = "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
         }
 
         //直接加法表达式
@@ -354,9 +352,8 @@ class TgLogic extends BaseLogic
                 'parse_mode' => 'HTML'
             ];
 
-            $send_message = $this->modelTgTradingHouseData->getTgMessage('l').PHP_EOL.PHP_EOL;
             $USDT =  bcadd($matches[1], $matches[4],2);
-            $send_message .= "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
+            $send_message = "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
         }
 
         //直接减法表达式
@@ -364,7 +361,6 @@ class TgLogic extends BaseLogic
             $option = [
                 'parse_mode' => 'HTML'
             ];
-            $send_message = $this->modelTgTradingHouseData->getTgMessage('l').PHP_EOL.PHP_EOL;
             $USDT =  bcsub($matches[1], $matches[4],2);
             $send_message .= "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
         }
