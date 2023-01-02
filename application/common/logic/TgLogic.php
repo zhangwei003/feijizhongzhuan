@@ -271,7 +271,7 @@ class TgLogic extends BaseLogic
         }
 
         //支付宝 z10
-        if (preg_match('/^z(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+        if (preg_match('/^z(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
             $option = [
                 'parse_mode' => 'HTML'
             ];
@@ -279,20 +279,19 @@ class TgLogic extends BaseLogic
             $where['pay_method'] = ['like', '%支付宝%'];
             $one_data = $this->modelTgTradingHouseData->where($where)->find();
 
-            $rate = $group_info['rate'];
-            $rate_c  = $group_info['rate'] ? $group_info['rate']/100 : 1;
-            $rate_usdt = bcdiv(bcmul($matches[1], $rate_c, 2), $one_data['price_buy'], 2)  ;
-            $sur_usdt = bcdiv(bcsub($matches[1], bcdiv($matches[1], $one_data['price_buy'], 2), 2), $one_data['price_buy'], 2) ;
-
-            $send_message = $this->modelTgTradingHouseData->getTgMessage('lz').PHP_EOL.PHP_EOL;
-
-            $send_message .= "<code>币数 ：($matches[1] ÷ {$one_data['price_buy']}) - {$rate}% = {$sur_usdt}USDT</code>". PHP_EOL;
-            $send_message .= "<code>手续费: {$rate}% = {$rate_usdt}USDT</code>". PHP_EOL;
+            if ($one_data){
+                $rate = $group_info['rate'];
+                $rate_usdt = $rate ?  bcdiv(bcmul($matches[1], $rate/100, 2), $one_data['price_buy'], 2) : 0;
+                $sur_usdt =  bcdiv(bcsub($matches[1],  $rate ?  bcdiv($matches[1], $rate, 2) : 0, 2), $one_data['price_buy'], 2);
+                $send_message = $this->modelTgTradingHouseData->getTgMessage('lz').PHP_EOL.PHP_EOL;
+                $send_message .= "<code>币数 ：($matches[1] ÷ {$one_data['price_buy']}) - {$rate}% = {$sur_usdt}USDT</code>". PHP_EOL;
+                $send_message .= "<code>手续费: {$rate}% = {$rate_usdt}USDT</code>". PHP_EOL;
+            }
 
         }
 
         //银行卡 k10
-        if (preg_match('/^k(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+        if (preg_match('/^k(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
             $option = [
                 'parse_mode' => 'HTML'
             ];
@@ -301,40 +300,77 @@ class TgLogic extends BaseLogic
             $one_data = $this->modelTgTradingHouseData->where($where)->find();
 
 
-            $rate = $group_info['rate'];
-            $rate_c  = $group_info['rate'] ? $group_info['rate']/100 : 1;
-            $rate_usdt = bcdiv(bcmul($matches[1], $rate_c, 2), $one_data['price_buy'], 2)  ;
-            $sur_usdt = bcdiv(bcsub($matches[1], bcdiv($matches[1], $one_data['price_buy'], 2), 2), $one_data['price_buy'], 2) ;
-
-            $send_message = $this->modelTgTradingHouseData->getTgMessage('lk').PHP_EOL.PHP_EOL;
-
-            $send_message .= "<code>币数 ：($matches[1] ÷ {$one_data['price_buy']}) - {$rate}% = {$sur_usdt}USDT</code>". PHP_EOL;
-            $send_message .= "<code>手续费: {$rate}% = {$rate_usdt}USDT</code>". PHP_EOL;
+            if ($one_data){
+                $rate = $group_info['rate'];
+                $rate_usdt = $rate ?  bcdiv(bcmul($matches[1], $rate/100, 2), $one_data['price_buy'], 2) : 0;
+                $sur_usdt =  bcdiv(bcsub($matches[1],  $rate ?  bcdiv($matches[1], $rate, 2) : 0, 2), $one_data['price_buy'], 2);
+                $send_message = $this->modelTgTradingHouseData->getTgMessage('lk').PHP_EOL.PHP_EOL;
+                $send_message .= "<code>币数 ：($matches[1] ÷ {$one_data['price_buy']}) - {$rate}% = {$sur_usdt}USDT</code>". PHP_EOL;
+                $send_message .= "<code>手续费: {$rate}% = {$rate_usdt}USDT</code>". PHP_EOL;
+            }
         }
 
 
         //微信支付 w10
-        if (preg_match('/^w(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+        if (preg_match('/^w(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+            $option = [
+                'parse_mode' => 'HTML'
+            ];
+            $where['pay_method'] = ['like', '%微信支付%'];
+            $one_data = $this->modelTgTradingHouseData->where($where)->find();
+            if ($one_data){
+                $rate = $group_info['rate'];
+                $rate_usdt = $rate ?  bcdiv(bcmul($matches[1], $rate/100, 2), $one_data['price_buy'], 2) : 0;
+                $sur_usdt =  bcdiv(bcsub($matches[1],  $rate ?  bcdiv($matches[1], $rate, 2) : 0, 2), $one_data['price_buy'], 2);
+                $send_message = $this->modelTgTradingHouseData->getTgMessage('lw').PHP_EOL.PHP_EOL;
+                $send_message .= "<code>币数 ：($matches[1] ÷ {$one_data['price_buy']}) - {$rate}% = {$sur_usdt}USDT</code>". PHP_EOL;
+                $send_message .= "<code>手续费: {$rate}% = {$rate_usdt}USDT</code>". PHP_EOL;
+            }
+        }
+
+        //直接除法表达式
+        if (preg_match('/^(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\/(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+            $option = [
+                'parse_mode' => 'HTML'
+            ];
+            $send_message = $this->modelTgTradingHouseData->getTgMessage('l').PHP_EOL.PHP_EOL;
+            $USDT =  bcdiv($matches[1], $matches[4],2);
+            $send_message .= "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
+        }
+
+        //直接乘法表达式
+        if (preg_match('/^(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\*(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+            $option = [
+                'parse_mode' => 'HTML'
+            ];
+            $send_message = $this->modelTgTradingHouseData->getTgMessage('l').PHP_EOL.PHP_EOL;
+            $USDT =  bcmul ($matches[1], $matches[4],2);
+            $send_message .= "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
+        }
+
+        //直接加法表达式
+        if (preg_match('/^(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\+(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
             $option = [
                 'parse_mode' => 'HTML'
             ];
 
-            $where['pay_method'] = ['like', '%微信支付%'];
-            $one_data = $this->modelTgTradingHouseData->where($where)->find();
-
-            $rate = $group_info['rate'];
-            $rate_c  = $group_info['rate'] ? $group_info['rate']/100 : 1;
-            $rate_usdt = bcdiv(bcmul($matches[1], $rate_c, 2), $one_data['price_buy'], 2)  ;
-            $sur_usdt = bcdiv(bcsub($matches[1], bcdiv($matches[1], $one_data['price_buy'], 2), 2), $one_data['price_buy'], 2) ;
-
-            $send_message = $this->modelTgTradingHouseData->getTgMessage('lw').PHP_EOL.PHP_EOL;
-
-            $send_message .= "<code>币数 ：($matches[1] ÷ {$one_data['price_buy']}) - {$rate}% = {$sur_usdt}USDT</code>". PHP_EOL;
-            $send_message .= "<code>手续费: {$rate}% = {$rate_usdt}USDT</code>". PHP_EOL;
+            $send_message = $this->modelTgTradingHouseData->getTgMessage('l').PHP_EOL.PHP_EOL;
+            $USDT =  bcadd($matches[1], $matches[4],2);
+            $send_message .= "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
         }
 
-        if (preg_match('/^\+(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches) or
-            preg_match('/^入款(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)
+        //直接减法表达式
+        if (preg_match('/^(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\-(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+            $option = [
+                'parse_mode' => 'HTML'
+            ];
+            $send_message = $this->modelTgTradingHouseData->getTgMessage('l').PHP_EOL.PHP_EOL;
+            $USDT =  bcsub($matches[1], $matches[4],2);
+            $send_message .= "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
+        }
+
+        if (preg_match('/^\+(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches) or
+            preg_match('/^入款(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)
         ){  //入款
             $ret = $this->addBill($group_id, $user_chat_id, $matches[1]);
             $option = [
@@ -345,8 +381,8 @@ class TgLogic extends BaseLogic
             }
         }
 
-        if (preg_match('/^\-(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches) or
-            preg_match('/^下发(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)
+        if (preg_match('/^\-(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches) or
+            preg_match('/^下发(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)
         ){  //入款
             $ret = $this->addBill($group_id, $user_chat_id, $matches[1], 2);
             $option = [
@@ -363,7 +399,7 @@ class TgLogic extends BaseLogic
             ];
             $send_message = $this->modelTgBill->getBill($group_id);
         }
-        
+halt($send_message);
         if ($send_message){
             $this->sendMessageTogroup($send_message, $group_chat_id, $option);
         }
