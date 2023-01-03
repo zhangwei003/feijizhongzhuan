@@ -409,7 +409,7 @@ class TgLogic extends BaseLogic
             ];
             $send_message = $this->modelTgBill->getBill($group_id);
         }
-halt($send_message);
+//halt($send_message);
         if ($send_message){
             $this->sendMessageTogroup($send_message, $group_chat_id, $option);
         }
