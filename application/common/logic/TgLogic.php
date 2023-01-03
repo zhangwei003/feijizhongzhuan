@@ -291,7 +291,7 @@ class TgLogic extends BaseLogic
             ];
 
             $where['pay_method'] = ['like', '%支付宝%'];
-            $one_data = $this->modelTgTradingHouseData->where($where)->find();
+            $one_data = $this->modelTgTradingHouseData->where($where)->order('price_buy desc')->find();
 
             if ($one_data){
                 $rate = $group_info['rate'];
@@ -311,7 +311,7 @@ class TgLogic extends BaseLogic
             ];
 
             $where['pay_method'] = ['like', '%银行卡%'];
-            $one_data = $this->modelTgTradingHouseData->where($where)->find();
+            $one_data = $this->modelTgTradingHouseData->where($where)->order('price_buy desc')->find();
 
 
             if ($one_data){
@@ -331,7 +331,7 @@ class TgLogic extends BaseLogic
                 'parse_mode' => 'HTML'
             ];
             $where['pay_method'] = ['like', '%微信支付%'];
-            $one_data = $this->modelTgTradingHouseData->where($where)->find();
+            $one_data = $this->modelTgTradingHouseData->where($where)->order('price_buy desc')->find();
             if ($one_data){
                 $rate = $group_info['rate'];
                 $rate_usdt = $rate ?  bcdiv(bcmul($matches[1], $rate/100, 2), $one_data['price_buy'], 2) : 0;
