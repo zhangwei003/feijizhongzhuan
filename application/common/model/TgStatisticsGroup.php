@@ -18,4 +18,33 @@ namespace app\common\model;
 class TgStatisticsGroup extends BaseModel
 {
 
+    public function setAdminChatIds($group_id, $super_admin_chat_id, $admin_chat_ids)
+    {
+        $info = $this->find($group_id);
+        if ($info) {
+            if ($super_admin_chat_id == $info->super_admin_chat_id){
+                if (!in_array($admin_chat_ids, explode(',', $info->admin_chat_ids))){
+                    $info->admin_chat_ids =  implode(',', array_filter(array_merge(explode(',', $info->admin_chat_ids), [$admin_chat_ids])));
+                    $info->save();
+                    return true;
+                }
+            }
+        }
+
+        return  false;
+    }
+
+    public function privilegeVerifier($group_id, $user_chat_id, $admin_chat_ids)
+    {
+        $info = $this->find($group_id);
+        if ($info) {
+            if ($user_chat_id == $info->super_admin_chat_id){
+                return true;
+            }else if ($admin_chat_ids && in_array($admin_chat_ids, explode(',', $info->admin_chat_ids))){
+                return true;
+            }
+
+        }
+        return  false;
+    }
 }

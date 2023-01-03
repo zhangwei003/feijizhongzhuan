@@ -226,6 +226,20 @@ class TgLogic extends BaseLogic
         $option = [];
         $group_info = $this->modelTgStatisticsGroup->find($group_id);
 
+        //设置管理员
+        if (preg_match('/^设置管理员 @(.*)$/', $command, $matches)){
+            $ret = $this->modelTgStatisticsGroup->setAdminChatIds($group_id,$user_chat_id, $matches[1]);
+            if ($ret){
+                $send_message = "@" . $matches[1] . ' 设置为管理员成功';
+            }
+        }
+
+        $ret =  $this->modelTgStatisticsGroup->privilegeVerifier($group_id, $user_chat_id, $message['from']['username'] ?? '');
+
+        if (!$ret){
+            return false;
+        }
+
         //设置费率
         if (preg_match('/^\/set (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
             $ret = $this->setRate($group_id, $matches[1]);
@@ -395,7 +409,7 @@ class TgLogic extends BaseLogic
             ];
             $send_message = $this->modelTgBill->getBill($group_id);
         }
-//halt($send_message);
+halt($send_message);
         if ($send_message){
             $this->sendMessageTogroup($send_message, $group_chat_id, $option);
         }
