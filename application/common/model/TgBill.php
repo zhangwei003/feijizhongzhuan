@@ -20,6 +20,7 @@ class TgBill extends BaseModel
 
     public function getBill($group_id){
         $group_info = $this->modelTgStatisticsGroup->find($group_id);
+
         $today_date = date('Y-m-d', time());
         $send_message = "<code>{$today_date}日小记</code>\n"  ;
         $whereCommon['group_id'] = $group_id;

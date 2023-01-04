@@ -227,7 +227,7 @@ class TgLogic extends BaseLogic
         $group_info = $this->modelTgStatisticsGroup->find($group_id);
 
         //设置管理员
-        if (preg_match('/^设置管理员 @(.*)$/', $command, $matches)){
+  /*      if (preg_match('/^设置管理员 @(.*)$/', $command, $matches)){
             $ret = $this->modelTgStatisticsGroup->setAdminChatIds($group_id,$user_chat_id, $matches[1]);
             if ($ret){
                 $send_message = "@" . $matches[1] . ' 设置为管理员成功';
@@ -238,7 +238,7 @@ class TgLogic extends BaseLogic
 
         if (!$ret){
             return false;
-        }
+        }*/
 
         //设置费率
         if (preg_match('/^\/set (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
