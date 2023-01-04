@@ -226,32 +226,6 @@ class TgLogic extends BaseLogic
         $option = [];
         $group_info = $this->modelTgStatisticsGroup->find($group_id);
 
-        //设置管理员
-  /*      if (preg_match('/^设置管理员 @(.*)$/', $command, $matches)){
-            $ret = $this->modelTgStatisticsGroup->setAdminChatIds($group_id,$user_chat_id, $matches[1]);
-            if ($ret){
-                $send_message = "@" . $matches[1] . ' 设置为管理员成功';
-            }
-        }
-
-        $ret =  $this->modelTgStatisticsGroup->privilegeVerifier($group_id, $user_chat_id, $message['from']['username'] ?? '');
-
-        if (!$ret){
-            return false;
-        }*/
-
-        //设置费率
-        if (preg_match('/^\/set (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
-            $ret = $this->setRate($group_id, $matches[1]);
-            $ret && $send_message = '设置费率成功，当前费率 ：' . $matches[1];
-        }
-
-        //设置入款费率
-        if (preg_match('/^\/payset (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
-            $ret = $this->setRkRate($group_id, $matches[1]);
-            $ret && $send_message = "入款规则手续费：$matches[1]%";
-        }
-
         //交易行全部
         if (strcasecmp($command ,'l') == 0){
             $option = [
@@ -341,6 +315,33 @@ class TgLogic extends BaseLogic
                 $send_message .= "<code>手续费: {$rate}% = {$rate_usdt}USDT</code>". PHP_EOL;
             }
         }
+
+        //设置管理员
+        if (preg_match('/^设置管理员 @(.*)$/', $command, $matches)){
+            $ret = $this->modelTgStatisticsGroup->setAdminChatIds($group_id,$user_chat_id, $matches[1]);
+            if ($ret){
+                $send_message = "@" . $matches[1] . ' 设置为管理员成功';
+            }
+        }
+
+        $ret =  $this->modelTgStatisticsGroup->privilegeVerifier($group_id, $user_chat_id, $message['from']['username'] ?? '');
+
+        if (!$ret){
+            return false;
+        }
+
+        //设置费率
+        if (preg_match('/^\/set (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+            $ret = $this->setRate($group_id, $matches[1]);
+            $ret && $send_message = '设置费率成功，当前费率 ：' . $matches[1];
+        }
+
+        //设置入款费率
+        if (preg_match('/^\/payset (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+            $ret = $this->setRkRate($group_id, $matches[1]);
+            $ret && $send_message = "入款规则手续费：$matches[1]%";
+        }
+
 
         //直接除法表达式
         if (preg_match('/^(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\/(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
