@@ -41,7 +41,7 @@ class TgBill extends BaseModel
 
         $y_total_rk = $total_rk - $rk_rate_amount;
 
-        $bijia = $this->modelTgTradingHouseData->limit(1)->value('price_buy');
+        $bijia = $this->modelTgTradingHouseData->limit(1)->order('price_buy desc')->value('price_buy');
 
         $y_usdt_num = bcdiv($y_total_rk, $bijia, 2);
 
