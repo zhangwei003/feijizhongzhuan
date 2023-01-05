@@ -218,9 +218,11 @@ class TgLogic extends BaseLogic
      */
     public function handleText($message)
     {
-        $command = $message['text'];
+
+        $command = $message['text'] ?? '';
         $group_chat_id = $message['chat']['id'];
         $user_chat_id = $message['from']['id'];
+
         $group_id = $this->joinGroup($group_chat_id, $user_chat_id);
         $send_message = '';
         $option = [];
@@ -231,6 +233,7 @@ class TgLogic extends BaseLogic
         if (!empty($new_chat_member)){
             $this->modelTgStatisticsGroup->welcomeNewMember($new_chat_member, $group_id, $send_message, $option);
         }
+
 
         //交易行全部
         if (strcasecmp($command ,'l') == 0){

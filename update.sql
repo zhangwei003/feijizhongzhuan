@@ -12,3 +12,5 @@ CREATE TABLE `cm_tg_inline_keyboards` (
                                           `update_time` int(11) DEFAULT NULL,
                                           PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
+
+alter table `cm_tg_statistics_group` add column `join_group_text` text NOT NULL;

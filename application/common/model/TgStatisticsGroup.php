@@ -79,7 +79,9 @@ class TgStatisticsGroup extends BaseModel
                         'group_id' => $group_id,
                         'status' =>1
                     ];
+
                     $keyboards =  $this->modelTgInlineKeyboards->where($keyboardMap)->field('text,url')->select();
+
                     if ($keyboards){
                         $keyboard = json_encode(["inline_keyboard" => array_chunk(collection($keyboards)->toArray(), 2) ]);
                     }else{
