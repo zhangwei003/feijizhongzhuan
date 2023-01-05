@@ -225,6 +225,12 @@ class TgLogic extends BaseLogic
         $send_message = '';
         $option = [];
         $group_info = $this->modelTgStatisticsGroup->find($group_id);
+        $new_chat_member =$message['new_chat_members'] ?? array();
+
+        //入群语响应
+        if (!empty($new_chat_member)){
+            $this->modelTgStatisticsGroup->welcomeNewMember($new_chat_member, $group_id, $send_message, $option);
+        }
 
         //交易行全部
         if (strcasecmp($command ,'l') == 0){
@@ -323,6 +329,34 @@ class TgLogic extends BaseLogic
                 $send_message = "@" . $matches[1] . ' 设置为管理员成功';
             }
         }
+
+        //设置入群消息
+        if (preg_match('/^设置入群语 (.*)$/', $command, $matches)){
+            $ret = $this->modelTgStatisticsGroup->setJoinGroupMessage($group_id,$user_chat_id, $matches[1]);
+            if ($ret){
+                $send_message = "入群语设置成功";
+            }
+        }
+
+        //设置按钮
+        if (preg_match('/^设置按钮 (.*)$/', $command, $matches)){
+            if (preg_match('/^(.*)\|\|(.*)$/', $matches[1], $matches1)){
+               $ret =  $this->modelTgInlineKeyboards->setKeyboard($group_id, $matches1[1], $matches1[2]);
+               if ($ret){
+                   $send_message = '按钮设置成功';
+               }
+            }
+        }
+
+        //设置按钮
+        if (preg_match('/^删除按钮 (.*)$/', $command, $matches)){
+            $ret =  $this->modelTgInlineKeyboards->delKeyboard($group_id, $matches[1]);
+            if ($ret){
+                $message = '删除按钮成功';
+            }
+
+        }
+
 
         $ret =  $this->modelTgStatisticsGroup->privilegeVerifier($group_id, $user_chat_id, $message['from']['username'] ?? '');
 

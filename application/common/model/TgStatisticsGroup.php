@@ -47,4 +47,56 @@ class TgStatisticsGroup extends BaseModel
         }
         return  false;
     }
+
+    public function setJoinGroupMessage($group_id, $super_admin_chat_id, $message)
+    {
+        $ret = false;
+        if (!empty($message)){
+            try {
+                $info = $this->find($group_id);
+                if ($super_admin_chat_id == $info->super_admin_chat_id){
+                    $info->join_group_text = $message;
+                    $info->save();
+                    $ret = true;
+                }
+
+            }catch (\Exception $e){
+
+            }
+
+        }
+
+        return $ret;
+    }
+
+    public function welcomeNewMember($new_chat_member, $group_id, &$send_message, &$option)
+    {
+        $bot_info = $this->find($group_id);
+        if ($bot_info){
+            foreach ($new_chat_member as $new_member) {
+                if (!$new_member['is_bot']) {
+                    $keyboardMap = [
+                        'group_id' => $group_id,
+                        'status' =>1
+                    ];
+                    $keyboards =  $this->modelTgInlineKeyboards->where($keyboardMap)->field('text,url')->select();
+                    if ($keyboards){
+                        $keyboard = json_encode(["inline_keyboard" => array_chunk(collection($keyboards)->toArray(), 2) ]);
+                    }else{
+                        $keyboard = [];
+                    }
+
+                    $send_message = $bot_info['join_group_text'] ?? "";
+
+                    $option = array(
+                        'reply_markup' =>  $keyboard
+                    );
+
+                }
+            }
+        }
+
+        return true;
+    }
+
 }
