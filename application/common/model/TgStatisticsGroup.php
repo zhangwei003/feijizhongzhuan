@@ -15,6 +15,8 @@
 namespace app\common\model;
 
 
+use app\common\logic\Log;
+
 class TgStatisticsGroup extends BaseModel
 {
 
