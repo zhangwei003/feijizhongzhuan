@@ -355,7 +355,7 @@ class TgLogic extends BaseLogic
         if (preg_match('/^删除按钮 (.*)$/', $command, $matches)){
             $ret =  $this->modelTgInlineKeyboards->delKeyboard($group_id, $matches[1]);
             if ($ret){
-                $message = '删除按钮成功';
+                $send_message = '删除按钮成功';
             }
 
         }
