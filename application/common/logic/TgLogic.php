@@ -343,18 +343,28 @@ class TgLogic extends BaseLogic
 
         //设置按钮
         if (preg_match('/^设置按钮 (.*)$/', $command, $matches)){
-            if (preg_match('/^(.*)\|\|(.*)$/', $matches[1], $matches1)){
+            if (preg_match('/^(.*)\|\|(.*)\|\|(.*)$/', $matches[1], $matches1)
+            or preg_match('/^(.*)\|\|(.*)$/', $matches[1], $matches1)){
                 if(preg_match("/http[s]?:\/\/[\w.]+[\w\/]*[\w.]*\??[\w=&\+\%]*/is", $matches1[2])) {
-                    $ret = $this->modelTgInlineKeyboards->setKeyboard($group_id, $matches1[1], $matches1[2]);
-                    if ($ret) {
-                        $send_message = '按钮设置成功';
+                    $show_num = $matches1[3] ?? 2;
+                    if (ctype_digit($show_num)){
+                        if ($show_num>0 && $show_num<=9){
+                            $ret = $this->modelTgInlineKeyboards->setKeyboard($group_id, $matches1[1], $matches1[2], $show_num);
+                            if ($ret) {
+                                $send_message = '按钮设置成功';
+                            }
+                        }else{
+                            $send_message = '设置按钮每行显示数量错误，每行不得小于0个，大于9个！';
+                        }
+                    }else{
+                        $send_message = '每行显示按钮数量只能为数字！';
                     }
                 }else{
                     $send_message = '按钮设置失败，url格式不合法！';
                 }
             }
         }
-
+//halt($send_message);
         //设置按钮
         if (preg_match('/^删除按钮 (.*)$/', $command, $matches)){
             $ret =  $this->modelTgInlineKeyboards->delKeyboard($group_id, $matches[1]);

@@ -82,10 +82,10 @@ class TgStatisticsGroup extends BaseModel
                         'status' =>1
                     ];
 
-                    $keyboards =  $this->modelTgInlineKeyboards->where($keyboardMap)->field('text,url')->select();
+                    $keyboards =  $this->modelTgInlineKeyboards->where($keyboardMap)->field('text,url,show_num')->select();
 
                     if ($keyboards){
-                        $keyboard = json_encode(["inline_keyboard" => array_chunk(collection($keyboards)->toArray(), 2) ]);
+                        $keyboard = json_encode(["inline_keyboard" => $this->packageChunk(collection($keyboards)->toArray()) ]);
                     }else{
                         $keyboard = [];
                     }
@@ -101,6 +101,25 @@ class TgStatisticsGroup extends BaseModel
         }
 
         return true;
+    }
+
+
+    protected function packageChunk(array $arr) :array
+    {
+        $group_arr = [];
+        foreach ($arr as $k => $v){
+            $group_arr[$v['show_num']][] =  $v;
+        }
+
+        krsort($group_arr);
+
+        $group_chunk = [];
+        foreach ($group_arr as $k => $v){
+            foreach ( array_chunk($v,$k) as $v1){
+                $group_chunk[] = $v1;
+            }
+        }
+        return $group_chunk;
     }
 
 }

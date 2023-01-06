@@ -8,7 +8,7 @@ namespace app\common\model;
 class TgInlineKeyboards extends BaseModel
 {
 
-    public function setKeyboard($group_id, $text, $url)
+    public function setKeyboard($group_id, $text, $url, $show_num)
     {
         $ret = false;
         $group_info = $this->modelTgStatisticsGroup->find($group_id);
@@ -17,7 +17,8 @@ class TgInlineKeyboards extends BaseModel
                 $ret = $this->save(array(
                     'group_id' => $group_id,
                     'text' => $text,
-                    'url' => $url
+                    'url' => $url,
+                    'show_num'=> $show_num
                 ));
             }
         }
