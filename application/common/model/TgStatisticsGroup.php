@@ -122,4 +122,25 @@ class TgStatisticsGroup extends BaseModel
         return $group_chunk;
     }
 
+    public function setDelKeywords($group_id, $keyword)
+    {
+        $ret = false;
+        if (!empty($keyword)){
+            try {
+                $info = $this->find($group_id);
+                if ($info){
+                    $info->del_keywords_text = implode(',', array_filter(array_merge(explode(',', $info->del_keywords_text), [$keyword])));;
+                    $info->save();
+                    $ret = true;
+                }
+
+            }catch (\Exception $e){
+                \think\Log::error('设置关键字删除error:' . $e->getMessage());
+            }
+
+        }
+
+        return $ret;
+    }
+
 }

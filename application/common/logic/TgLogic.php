@@ -80,6 +80,27 @@ class TgLogic extends BaseLogic
         return json_decode(httpRequest($url, 'POST', $data), true);
     }
 
+    /**
+     * 删除某个群组消息
+     * @param $text
+     * @param $chat_id
+     * @param array $option
+     * @return mixed
+     *
+     */
+    public function delGroupMessage($chat_id, $message_id)
+    {
+
+        $url = "https://api.telegram.org/bot". $this->tgToken  ."/deleteMessage";
+
+        $data = [
+            'chat_id' => $chat_id,
+            'message_id' => $message_id
+        ];
+
+        return json_decode(httpRequest($url, 'POST', $data), true);
+    }
+
 
     /**
      * 转发消息到另外的群组
@@ -228,13 +249,21 @@ class TgLogic extends BaseLogic
         $option = [];
         $group_info = $this->modelTgStatisticsGroup->find($group_id);
         $new_chat_member =$message['new_chat_members'] ?? array();
+        $message_id = $message['message_id'] ?? '';
+
+
+        if (!empty($message_id)){
+           if ($this->keywordFilter($command, $group_id)){
+               $this->delGroupMessage($group_chat_id, $message_id);
+               return;
+           }
+        }
 
         //入群语响应
         if (!empty($new_chat_member)){
             $this->modelTgStatisticsGroup->welcomeNewMember($new_chat_member, $group_id, $send_message, $option);
         }
 
-//halt($option);
         //交易行全部
         if (strcasecmp($command ,'l') == 0){
             $option = [
@@ -364,7 +393,7 @@ class TgLogic extends BaseLogic
                 }
             }
         }
-//halt($send_message);
+
         //设置按钮
         if (preg_match('/^删除按钮 (.*)$/', $command, $matches)){
             $ret =  $this->modelTgInlineKeyboards->delKeyboard($group_id, $matches[1]);
@@ -379,6 +408,14 @@ class TgLogic extends BaseLogic
 
         if (!$ret){
             return false;
+        }
+
+        //设置关键字
+        if (preg_match('/^设置删除关键字 (.*)$/', $command, $matches)){
+            $ret = $this->modelTgStatisticsGroup->setDelKeywords($group_id, $matches[1]);
+            if ($ret){
+                $send_message = '关键字设置成功';
+            }
         }
 
         //设置费率
@@ -461,7 +498,7 @@ class TgLogic extends BaseLogic
             ];
             $send_message = $this->modelTgBill->getBill($group_id);
         }
-//halt($send_message);
+halt($send_message);
         if ($send_message){
             $this->sendMessageTogroup($send_message, $group_chat_id, $option);
         }
@@ -548,5 +585,25 @@ class TgLogic extends BaseLogic
     public function getGroupAmount($group_id)
     {
         return  $this->modelTgStatisticsGroup->where('id', $group_id)->value('amount');
+    }
+
+    //触发关键字删除
+    function keywordFilter($text, $group_id)
+    {
+
+        $del = false;
+
+
+        $keywords = $this->modelTgStatisticsGroup->where('id', $group_id)->value('del_keywords_text');
+        if ($keywords){
+            $keywordsArr = explode(',', $keywords);
+            foreach ($keywordsArr as $keyword){
+                if (strstr(str_replace(' ', '', $text), $keyword)){
+                    return true;
+                }
+            }
+        }
+
+        return $del;
     }
 }
