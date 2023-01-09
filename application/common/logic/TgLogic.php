@@ -273,7 +273,7 @@ class TgLogic extends BaseLogic
         $message_id = $message['message_id'] ?? '';
         $reply_to_message = $message['reply_to_message'] ?? [];
 
-\think\Log::notice( '$command' . $command);
+
 
         if (!empty($message_id)){
             if ($this->modelTgKeywords->keywordFilter($command, $group_id)){
@@ -560,6 +560,7 @@ class TgLogic extends BaseLogic
             ];
             $send_message = $this->modelTgBill->getBill($group_id);
         }
+        \think\Log::notice( '$send_message' . $send_message);
 //halt($send_message);
         if ($send_message){
             $this->sendMessageTogroup($send_message, $group_chat_id, $option);
