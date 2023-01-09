@@ -273,7 +273,7 @@ class TgLogic extends BaseLogic
         $message_id = $message['message_id'] ?? '';
         $reply_to_message = $message['reply_to_message'] ?? [];
 
-
+\think\Log::notice( '$command' . $command);
 
         if (!empty($message_id)){
             if ($this->modelTgKeywords->keywordFilter($command, $group_id)){
