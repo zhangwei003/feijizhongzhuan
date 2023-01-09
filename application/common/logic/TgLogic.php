@@ -273,7 +273,7 @@ class TgLogic extends BaseLogic
         $message_id = $message['message_id'] ?? '';
         $reply_to_message = $message['reply_to_message'] ?? [];
 
-
+        \think\Log::notice( '$send_message1' . $send_message);
 
         if (!empty($message_id)){
             if ($this->modelTgKeywords->keywordFilter($command, $group_id)){
@@ -281,12 +281,12 @@ class TgLogic extends BaseLogic
                 return;
             }
         }
-
+        \think\Log::notice( '$send_message2' . $send_message);
         //入群语响应
         if (!empty($new_chat_member)){
             $this->modelTgStatisticsGroup->welcomeNewMember($new_chat_member, $group_id, $send_message, $option);
         }
-
+        \think\Log::notice( '$send_message3' . $send_message);
         //交易行全部
         if (strcasecmp($command ,'l') == 0){
             $option = [
@@ -294,7 +294,7 @@ class TgLogic extends BaseLogic
             ];
             $send_message = $this->modelTgTradingHouseData->getTgMessage();
         }
-
+        \think\Log::notice( '$send_message4' . $send_message);
         //交易行支付宝
         if (strcasecmp($command ,'lz') == 0){
             $option = [
