@@ -101,6 +101,25 @@ class TgLogic extends BaseLogic
         return json_decode(httpRequest($url, 'POST', $data), true);
     }
 
+    /**
+     * 禁言群组某个用户
+     * @param $chat_id
+     * @param $usr_chat_id
+     * @param $date
+     */
+    public function silenceUser($chat_id, $usr_chat_id, $until_date)
+    {
+        $url = "https://api.telegram.org/bot". $this->tgToken  ."/restrictChatMember";
+
+        $data = [
+            'chat_id' => $chat_id,
+            'user_id' => $usr_chat_id,
+            'until_date' => $until_date
+        ];
+
+
+        return json_decode(httpRequest($url, 'POST', $data), true);
+    }
 
     /**
      * 转发消息到另外的群组
@@ -250,13 +269,15 @@ class TgLogic extends BaseLogic
         $group_info = $this->modelTgStatisticsGroup->find($group_id);
         $new_chat_member =$message['new_chat_members'] ?? array();
         $message_id = $message['message_id'] ?? '';
+        $reply_to_message = $message['reply_to_message'] ?? [];
+
 
 
         if (!empty($message_id)){
-           if ($this->keywordFilter($command, $group_id)){
-               $this->delGroupMessage($group_chat_id, $message_id);
-               return;
-           }
+            if ($this->modelTgKeywords->keywordFilter($command, $group_id)){
+                $this->delGroupMessage($group_chat_id, $message_id);
+                return;
+            }
         }
 
         //入群语响应
@@ -412,11 +433,34 @@ class TgLogic extends BaseLogic
 
         //设置关键字
         if (preg_match('/^设置删除关键字 (.*)$/', $command, $matches)){
-            $ret = $this->modelTgStatisticsGroup->setDelKeywords($group_id, $matches[1]);
+            $ret = $this->modelTgKeywords->setDelKeywords($group_id, $matches[1]);
             if ($ret){
                 $send_message = '关键字设置成功';
             }
         }
+
+        //设置关键字禁言几天
+        /*if (preg_match('/^禁言(\d*)天$/', $command, $matches)){
+
+            if (isset($reply_to_message['text'])){
+                if (preg_match('/^设置删除关键字 (.*)$/', $reply_to_message['text'], $matches1)){
+                    $ret = $this->modelTgKeywords->setDelKeywordsNum($group_id, $matches[1], $matches1[1]);
+                    if ($ret){
+                        $send_message = $matches['0'] . '成功';
+                    }
+                }
+            }
+        }*/
+
+        //禁言用户
+        if (preg_match('/^禁言(\d*)天$/', $command, $matches)){
+            if (isset($reply_to_message['from']['id']) ){
+                $this->silenceUser($group_chat_id, $reply_to_message['from']['id'], $message['date'] +  $matches[1] * 86400 );
+                \think\Log::notice($matches[0]. ' 用户标识：'. $reply_to_message['from']['id']);
+                return;
+            }
+        }
+
 
         //设置费率
         if (preg_match('/^\/set (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
@@ -587,23 +631,6 @@ class TgLogic extends BaseLogic
         return  $this->modelTgStatisticsGroup->where('id', $group_id)->value('amount');
     }
 
-    //触发关键字删除
-    function keywordFilter($text, $group_id)
-    {
-
-        $del = false;
 
 
-        $keywords = $this->modelTgStatisticsGroup->where('id', $group_id)->value('del_keywords_text');
-        if ($keywords){
-            $keywordsArr = explode(',', $keywords);
-            foreach ($keywordsArr as $keyword){
-                if (strstr(str_replace(' ', '', $text), $keyword)){
-                    return true;
-                }
-            }
-        }
-
-        return $del;
-    }
 }

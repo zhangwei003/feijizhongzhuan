@@ -18,3 +18,14 @@ alter table `cm_tg_statistics_group` add column `join_group_text` text NOT NULL;
 alter table `cm_tg_inline_keyboards` add column `show_num` int(3) DEFAULT NULL AFTER `create_time`;
 
 alter table `cm_tg_statistics_group` add column `del_keywords_text` text AFTER `create_time`;
+
+    CREATE TABLE `cm_tg_keywords` (
+                                      `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+                                      `group_id` int(11) NOT NULL,
+                                      `keyword` varchar(255) NOT NULL,
+                                      `expiration_time` int(11) NOT NULL,
+                                      `status` tinyint(1) NOT NULL,
+                                      `create_time` int(11) DEFAULT NULL,
+                                      `update_time` int(11) DEFAULT NULL,
+                                      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
