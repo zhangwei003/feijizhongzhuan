@@ -117,6 +117,11 @@ class TgLogic extends BaseLogic
             'until_date' => $until_date
         ];
 
+        /* echo $url;
+        echo '<br/>';
+        halt($data);*/
+        \think\Log::notice('$url:' . $url);
+        \think\Log::notice('$data json:' . json_encode($data));
 
         return json_decode(httpRequest($url, 'POST', $data), true);
     }
