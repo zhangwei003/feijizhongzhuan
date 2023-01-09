@@ -566,6 +566,7 @@ class TgLogic extends BaseLogic
         }
         \think\Log::notice( '$send_message' . $send_message);
 
+        \think\Log::notice('s5214154sdf5sd45f4dsf5d');
 //halt($send_message);
         if ($send_message){
             $this->sendMessageTogroup($send_message, $group_chat_id, $option);
