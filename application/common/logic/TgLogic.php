@@ -117,10 +117,6 @@ class TgLogic extends BaseLogic
             'permissions' => $permissions,
             'until_date' => $until_date
         ];
-
-        /* echo $url;
-        echo '<br/>';
-        halt($data);*/
         \think\Log::notice('$url:' . $url);
         \think\Log::notice('$data json:' . json_encode($data));
 
@@ -459,8 +455,11 @@ class TgLogic extends BaseLogic
         }*/
 
         //禁言用户
+
         if (preg_match('/^禁言(\d*)天$/', $command, $matches)){
+
             if (isset($reply_to_message['from']['id']) ){
+
                 $Permissions = array(
                     'can_send_messages' => false,
                     'can_send_media_messages' => false,
@@ -472,6 +471,7 @@ class TgLogic extends BaseLogic
                     'can_pin_messages' => false,
                     'can_manage_topics' => false
                 );
+
                 $Permissions = json_encode($Permissions);
                 $this->silenceUser($group_chat_id, $reply_to_message['from']['id'], $message['date'] +  $matches[1] * 86400,  $Permissions);
                 \think\Log::notice($matches[0]. ' 用户标识：'. $reply_to_message['from']['id']);
