@@ -99,7 +99,7 @@ class OkxSpider extends Command
                 page_click()
                
             ");
-            $page->waitForTimeout('10000');
+            $page->waitForTimeout('30000');
             $html = $page->content();
             $browser->close();
             return $html;
@@ -112,7 +112,7 @@ class OkxSpider extends Command
         $lists_data = $playlists_ql
             ->rules([
                 'merchant_name' => ['.merchant-name a', 'text'],
-                'price_buy' => ['.c-buy', 'text'],
+                'price_buy' => ['.price', 'text'],
                 'pay_method' => ['.payment-list', 'html'],
             ])
             ->range('.fiat-entrust')
