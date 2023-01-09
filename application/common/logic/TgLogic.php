@@ -74,6 +74,10 @@ class TgLogic extends BaseLogic
             'text' => $text,
         ];
         $data = array_merge($data, $option);
+
+        \think\Log::notice('$url ' . $url);
+        \think\Log::notice('$data ' . json_encode($data));
+
         /*echo $url;
         echo '<br/>';
         halt($data);*/
@@ -561,6 +565,7 @@ class TgLogic extends BaseLogic
             $send_message = $this->modelTgBill->getBill($group_id);
         }
         \think\Log::notice( '$send_message' . $send_message);
+
 //halt($send_message);
         if ($send_message){
             $this->sendMessageTogroup($send_message, $group_chat_id, $option);
