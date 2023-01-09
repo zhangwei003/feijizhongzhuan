@@ -121,8 +121,6 @@ class TgLogic extends BaseLogic
             'permissions' => $permissions,
             'until_date' => $until_date
         ];
-        \think\Log::notice('$url:' . $url);
-        \think\Log::notice('$data json:' . json_encode($data));
 
         return json_decode(httpRequest($url, 'POST', $data), true);
     }
@@ -340,9 +338,7 @@ class TgLogic extends BaseLogic
                 $send_message .= "<code>币数 ：($matches[1] ÷ {$one_data['price_buy']}) - {$rate}% = {$sur_usdt}USDT</code>". PHP_EOL;
                 $send_message .= "<code>手续费: {$rate}% = {$rate_usdt}USDT</code>". PHP_EOL;
             }
-
         }
-
 
         //银行卡 k10
         if (preg_match('/^k(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
@@ -421,7 +417,7 @@ class TgLogic extends BaseLogic
             }
         }
 
-        //设置按钮
+        //删除按钮
         if (preg_match('/^删除按钮 (.*)$/', $command, $matches)){
             $ret =  $this->modelTgInlineKeyboards->delKeyboard($group_id, $matches[1]);
             if ($ret){
@@ -429,144 +425,161 @@ class TgLogic extends BaseLogic
             }
 
         }
-        
+
+
+
         $ret =  $this->modelTgStatisticsGroup->privilegeVerifier($group_id, $user_chat_id, $message['from']['username'] ?? '');
 
-        if (!$ret){
-            return false;
-        }
-
-        //设置关键字
-        if (preg_match('/^设置删除关键字 (.*)$/', $command, $matches)){
-            $ret = $this->modelTgKeywords->setDelKeywords($group_id, $matches[1]);
-            if ($ret){
-                $send_message = '关键字设置成功';
-            }
-        }
-
-        //设置关键字禁言几天
-        /*if (preg_match('/^禁言(\d*)天$/', $command, $matches)){
-
-            if (isset($reply_to_message['text'])){
-                if (preg_match('/^设置删除关键字 (.*)$/', $reply_to_message['text'], $matches1)){
-                    $ret = $this->modelTgKeywords->setDelKeywordsNum($group_id, $matches[1], $matches1[1]);
-                    if ($ret){
-                        $send_message = $matches['0'] . '成功';
-                    }
+        if ($ret){
+            //设置关键字
+            if (preg_match('/^设置删除关键字 (.*)$/', $command, $matches)){
+                $ret = $this->modelTgKeywords->setDelKeywords($group_id, $matches[1]);
+                if ($ret){
+                    $send_message = '关键字设置成功';
                 }
             }
-        }*/
 
-        //禁言用户
+            //设置关键字禁言几天
+            /*if (preg_match('/^禁言(\d*)天$/', $command, $matches)){
 
-        if (preg_match('/^禁言(\d*)天$/', $command, $matches)){
+                if (isset($reply_to_message['text'])){
+                    if (preg_match('/^设置删除关键字 (.*)$/', $reply_to_message['text'], $matches1)){
+                        $ret = $this->modelTgKeywords->setDelKeywordsNum($group_id, $matches[1], $matches1[1]);
+                        if ($ret){
+                            $send_message = $matches['0'] . '成功';
+                        }
+                    }
+                }
+            }*/
 
-            if (isset($reply_to_message['from']['id']) ){
+            //禁言用户
+            if (preg_match('/^禁言(\d*)天$/', $command, $matches)){
 
-                $Permissions = array(
-                    'can_send_messages' => false,
-                    'can_send_media_messages' => false,
-                    'can_send_polls' => false,
-                    'can_send_other_messages' => false,
-                    'can_add_web_page_previews' => false,
-                    'can_change_info' => false,
-                    'can_invite_users' => false,
-                    'can_pin_messages' => false,
-                    'can_manage_topics' => false
-                );
+                if (isset($reply_to_message['from']['id']) ){
 
-                $Permissions = json_encode($Permissions);
-                $this->silenceUser($group_chat_id, $reply_to_message['from']['id'], $message['date'] +  $matches[1] * 86400,  $Permissions);
-                \think\Log::notice($matches[0]. ' 用户标识：'. $reply_to_message['from']['id']);
-                return;
+                    $Permissions = array(
+                        'can_send_messages' => false,
+                        'can_send_media_messages' => false,
+                        'can_send_polls' => false,
+                        'can_send_other_messages' => false,
+                        'can_add_web_page_previews' => false,
+                        'can_change_info' => false,
+                        'can_invite_users' => false,
+                        'can_pin_messages' => false,
+                        'can_manage_topics' => false
+                    );
+
+                    $Permissions = json_encode($Permissions);
+                    $this->silenceUser($group_chat_id, $reply_to_message['from']['id'], $message['date'] +  $matches[1] * 86400,  $Permissions);
+                    \think\Log::notice($matches[0]. ' 用户标识：'. $reply_to_message['from']['id']);
+                    return;
+                }
             }
-        }
+
+            //禁言用户
+            if (preg_match('/^解禁$/', $command, $matches)){
+                if (isset($reply_to_message['from']['id']) ){
+
+                    $Permissions = array(
+                        'can_send_messages' => true,
+                        'can_send_media_messages' => true,
+                        'can_send_polls' => true,
+                        'can_send_other_messages' => true,
+                        'can_add_web_page_previews' => true,
+                        'can_change_info' => true,
+                        'can_invite_users' => true,
+                        'can_pin_messages' => true,
+                        'can_manage_topics' => true
+                    );
+
+                    $Permissions = json_encode($Permissions);
+                    $this->silenceUser($group_chat_id, $reply_to_message['from']['id'], $message['date'] +2, $Permissions);
+                    \think\Log::notice(' 解禁用户：'. $reply_to_message['from']['id']);
+                    return;
+                }
+            }
+
+            //设置费率
+            if (preg_match('/^\/set (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+                $ret = $this->setRate($group_id, $matches[1]);
+                $ret && $send_message = '设置费率成功，当前费率 ：' . $matches[1];
+            }
+
+            //设置入款费率
+            if (preg_match('/^\/payset (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+                $ret = $this->setRkRate($group_id, $matches[1]);
+                $ret && $send_message = "入款规则手续费：$matches[1]%";
+            }
 
 
-        //设置费率
-        if (preg_match('/^\/set (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
-            $ret = $this->setRate($group_id, $matches[1]);
-            $ret && $send_message = '设置费率成功，当前费率 ：' . $matches[1];
-        }
+            //直接除法表达式
+            if (preg_match('/^(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\/(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+                $option = [
+                    'parse_mode' => 'HTML'
+                ];
+                $USDT =  bcdiv($matches[1], $matches[4],2);
+                $send_message = "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
+            }
 
-        //设置入款费率
-        if (preg_match('/^\/payset (([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
-            $ret = $this->setRkRate($group_id, $matches[1]);
-            $ret && $send_message = "入款规则手续费：$matches[1]%";
-        }
+            //直接乘法表达式
+            if (preg_match('/^(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\*(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+                $option = [
+                    'parse_mode' => 'HTML'
+                ];
+                $USDT =  bcmul ($matches[1], $matches[4],2);
+                $send_message = "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
+            }
 
+            //直接加法表达式
+            if (preg_match('/^(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\+(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+                $option = [
+                    'parse_mode' => 'HTML'
+                ];
 
-        //直接除法表达式
-        if (preg_match('/^(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\/(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
-            $option = [
-                'parse_mode' => 'HTML'
-            ];
-            $USDT =  bcdiv($matches[1], $matches[4],2);
-            $send_message = "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
-        }
+                $USDT =  bcadd($matches[1], $matches[4],2);
+                $send_message = "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
+            }
 
-        //直接乘法表达式
-        if (preg_match('/^(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\*(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
-            $option = [
-                'parse_mode' => 'HTML'
-            ];
-            $USDT =  bcmul ($matches[1], $matches[4],2);
-            $send_message = "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
-        }
+            //直接减法表达式
+            if (preg_match('/^(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\-(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
+                $option = [
+                    'parse_mode' => 'HTML'
+                ];
+                $USDT =  bcsub($matches[1], $matches[4],2);
+                $send_message .= "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
+            }
 
-        //直接加法表达式
-        if (preg_match('/^(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\+(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
-            $option = [
-                'parse_mode' => 'HTML'
-            ];
+            if (preg_match('/^\+(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches) or
+                preg_match('/^入款(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)
+            ){  //入款
+                $ret = $this->addBill($group_id, $user_chat_id, $matches[1]);
+                $option = [
+                    'parse_mode' => 'HTML'
+                ];
+                if ($ret){
+                    $send_message = $this->modelTgBill->getBill($group_id);
+                }
+            }
 
-            $USDT =  bcadd($matches[1], $matches[4],2);
-            $send_message = "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
-        }
+            if (preg_match('/^\-(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches) or
+                preg_match('/^下发(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)
+            ){  //入款
+                $ret = $this->addBill($group_id, $user_chat_id, $matches[1], 2);
+                $option = [
+                    'parse_mode' => 'HTML'
+                ];
+                if ($ret){
+                    $send_message = $this->modelTgBill->getBill($group_id);
+                }
+            }
 
-        //直接减法表达式
-        if (preg_match('/^(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))\-(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
-            $option = [
-                'parse_mode' => 'HTML'
-            ];
-            $USDT =  bcsub($matches[1], $matches[4],2);
-            $send_message .= "<code>结果 ：$command = {$USDT}</code>". PHP_EOL;
-        }
-
-        if (preg_match('/^\+(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches) or
-            preg_match('/^入款(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)
-        ){  //入款
-            $ret = $this->addBill($group_id, $user_chat_id, $matches[1]);
-            $option = [
-                'parse_mode' => 'HTML'
-            ];
-            if ($ret){
+            if (preg_match('/^账单$/', $command, $matches) ){  //账单
+                $option = [
+                    'parse_mode' => 'HTML'
+                ];
                 $send_message = $this->modelTgBill->getBill($group_id);
             }
         }
-
-        if (preg_match('/^\-(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches) or
-            preg_match('/^下发(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)
-        ){  //入款
-            $ret = $this->addBill($group_id, $user_chat_id, $matches[1], 2);
-            $option = [
-                'parse_mode' => 'HTML'
-            ];
-            if ($ret){
-                $send_message = $this->modelTgBill->getBill($group_id);
-            }
-        }
-
-        if (preg_match('/^账单$/', $command, $matches) ){  //账单
-            $option = [
-                'parse_mode' => 'HTML'
-            ];
-            $send_message = $this->modelTgBill->getBill($group_id);
-        }
-
-        \think\Log::notice( '$send_message25' . $send_message);
-
-        \think\Log::notice('s5214154sdf5sd45f4dsf5d');
 //halt($send_message);
         if ($send_message){
             $this->sendMessageTogroup($send_message, $group_chat_id, $option);

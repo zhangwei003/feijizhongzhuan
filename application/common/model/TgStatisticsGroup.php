@@ -15,7 +15,9 @@
 namespace app\common\model;
 
 
+use app\common\library\exception\OrderException;
 use app\common\logic\Log;
+use think\Exception;
 
 class TgStatisticsGroup extends BaseModel
 {
@@ -38,19 +40,18 @@ class TgStatisticsGroup extends BaseModel
 
     public function privilegeVerifier($group_id, $user_chat_id, $admin_chat_ids)
     {
-        \think\Log::notice('$group_id' . $group_id);
-        \think\Log::notice('$user_chat_id' . $user_chat_id);
-        \think\Log::notice('$admin_chat_ids' . $admin_chat_ids);
-        $info = $this->find($group_id);
-        if ($info) {
-            if ($user_chat_id == $info->super_admin_chat_id){
-                return true;
-            }else if ($admin_chat_ids && in_array($admin_chat_ids, explode(',', $info->admin_chat_ids))){
-                return true;
-            }
+            $info = $this->find($group_id);
+            if ($info) {
+                if ($user_chat_id == $info->super_admin_chat_id){
+                    return true;
+                }else if ($admin_chat_ids && in_array($admin_chat_ids, explode(',', $info->admin_chat_ids))){
+                    return true;
+                }
 
-        }
-        return  false;
+            }
+            return  false;
+
+
     }
 
     public function setJoinGroupMessage($group_id, $super_admin_chat_id, $message)
