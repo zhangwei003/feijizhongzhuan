@@ -107,13 +107,14 @@ class TgLogic extends BaseLogic
      * @param $usr_chat_id
      * @param $date
      */
-    public function silenceUser($chat_id, $usr_chat_id, $until_date)
+    public function silenceUser($chat_id, $usr_chat_id, $until_date, $permissions)
     {
         $url = "https://api.telegram.org/bot". $this->tgToken  ."/restrictChatMember";
 
         $data = [
             'chat_id' => $chat_id,
             'user_id' => $usr_chat_id,
+            'permissions' => $permissions,
             'until_date' => $until_date
         ];
 
@@ -460,7 +461,19 @@ class TgLogic extends BaseLogic
         //禁言用户
         if (preg_match('/^禁言(\d*)天$/', $command, $matches)){
             if (isset($reply_to_message['from']['id']) ){
-                $this->silenceUser($group_chat_id, $reply_to_message['from']['id'], $message['date'] +  $matches[1] * 86400 );
+                $Permissions = array(
+                    'can_send_messages' => false,
+                    'can_send_media_messages' => false,
+                    'can_send_polls' => false,
+                    'can_send_other_messages' => false,
+                    'can_add_web_page_previews' => false,
+                    'can_change_info' => false,
+                    'can_invite_users' => false,
+                    'can_pin_messages' => false,
+                    'can_manage_topics' => false
+                );
+                $Permissions = json_encode($Permissions);
+                $this->silenceUser($group_chat_id, $reply_to_message['from']['id'], $message['date'] +  $matches[1] * 86400,  $Permissions);
                 \think\Log::notice($matches[0]. ' 用户标识：'. $reply_to_message['from']['id']);
                 return;
             }
