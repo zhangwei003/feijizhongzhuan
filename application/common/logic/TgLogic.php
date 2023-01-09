@@ -306,7 +306,7 @@ class TgLogic extends BaseLogic
             ];
             $send_message = $this->modelTgTradingHouseData->getTgMessage('lz');
         }
-
+        \think\Log::notice( '$send_message5' . $send_message);
         //交易行银行卡
         if (strcasecmp($command ,'lk') == 0){
             $option = [
@@ -314,7 +314,7 @@ class TgLogic extends BaseLogic
             ];
             $send_message = $this->modelTgTradingHouseData->getTgMessage('lk');
         }
-
+        \think\Log::notice( '$send_message6' . $send_message);
         //交易行微信
         if (strcasecmp($command, 'lw') == 0){
             $option = [
@@ -322,7 +322,7 @@ class TgLogic extends BaseLogic
             ];
             $send_message = $this->modelTgTradingHouseData->getTgMessage('lw');
         }
-
+        \think\Log::notice( '$send_message7' . $send_message);
         //支付宝 z10
         if (preg_match('/^z(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
             $option = [
@@ -343,7 +343,8 @@ class TgLogic extends BaseLogic
 
         }
 
-/*        //银行卡 k10
+        \think\Log::notice( '$send_message8' . $send_message);
+        //银行卡 k10
         if (preg_match('/^k(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
             $option = [
                 'parse_mode' => 'HTML'
@@ -363,7 +364,7 @@ class TgLogic extends BaseLogic
             }
         }
 
-
+        \think\Log::notice( '$send_message9' . $send_message);
         //微信支付 w10
         if (preg_match('/^w(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
             $option = [
@@ -381,6 +382,7 @@ class TgLogic extends BaseLogic
             }
         }
 
+        \think\Log::notice( '$send_message10' . $send_message);
         //设置管理员
         if (preg_match('/^设置管理员 @(.*)$/', $command, $matches)){
             $ret = $this->modelTgStatisticsGroup->setAdminChatIds($group_id,$user_chat_id, $matches[1]);
@@ -389,6 +391,7 @@ class TgLogic extends BaseLogic
             }
         }
 
+        \think\Log::notice( '$send_message11' . $send_message);
         //设置入群消息
         if (preg_match('/^设置入群语 (.*)$/', $command, $matches)){
             $ret = $this->modelTgStatisticsGroup->setJoinGroupMessage($group_id,$user_chat_id, $matches[1]);
@@ -397,6 +400,7 @@ class TgLogic extends BaseLogic
             }
         }
 
+        \think\Log::notice( '$send_message12' . $send_message);
         //设置按钮
         if (preg_match('/^设置按钮 (.*)$/', $command, $matches)){
             if (preg_match('/^(.*)\|\|(.*)\|\|(.*)$/', $matches[1], $matches1)
@@ -421,6 +425,7 @@ class TgLogic extends BaseLogic
             }
         }
 
+        \think\Log::notice( '$send_message13' . $send_message);
         //设置按钮
         if (preg_match('/^删除按钮 (.*)$/', $command, $matches)){
             $ret =  $this->modelTgInlineKeyboards->delKeyboard($group_id, $matches[1]);
@@ -430,13 +435,13 @@ class TgLogic extends BaseLogic
 
         }
 
-
+        \think\Log::notice( '$send_message14' . $send_message);
         $ret =  $this->modelTgStatisticsGroup->privilegeVerifier($group_id, $user_chat_id, $message['from']['username'] ?? '');
 
         if (!$ret){
             return false;
         }
-
+        \think\Log::notice( '$send_message15' . $send_message);
         //设置关键字
         if (preg_match('/^设置删除关键字 (.*)$/', $command, $matches)){
             $ret = $this->modelTgKeywords->setDelKeywords($group_id, $matches[1]);
@@ -563,7 +568,8 @@ class TgLogic extends BaseLogic
                 'parse_mode' => 'HTML'
             ];
             $send_message = $this->modelTgBill->getBill($group_id);
-        }*/
+        }
+
         \think\Log::notice( '$send_message25' . $send_message);
 
         \think\Log::notice('s5214154sdf5sd45f4dsf5d');
