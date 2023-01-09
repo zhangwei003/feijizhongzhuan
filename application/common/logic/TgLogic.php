@@ -343,7 +343,7 @@ class TgLogic extends BaseLogic
 
         }
 
-        //银行卡 k10
+/*        //银行卡 k10
         if (preg_match('/^k(([0-9]\d*\.?\d*)|(0\.\d*[1-9]))$/', $command, $matches)){
             $option = [
                 'parse_mode' => 'HTML'
@@ -563,8 +563,8 @@ class TgLogic extends BaseLogic
                 'parse_mode' => 'HTML'
             ];
             $send_message = $this->modelTgBill->getBill($group_id);
-        }
-        \think\Log::notice( '$send_message' . $send_message);
+        }*/
+        \think\Log::notice( '$send_message25' . $send_message);
 
         \think\Log::notice('s5214154sdf5sd45f4dsf5d');
 //halt($send_message);
