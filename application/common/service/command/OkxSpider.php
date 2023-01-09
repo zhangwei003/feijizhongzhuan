@@ -25,7 +25,6 @@ use QL\Ext\Chrome;
 
 
 /**
- * 推送等待订单至队列   5分钟一次
  *
  * @author 勇敢的小笨羊 <brianwaring98@gmail.com>
  *
